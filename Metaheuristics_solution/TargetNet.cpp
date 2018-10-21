@@ -2,12 +2,14 @@
 
 TargetNet::TargetNet()
 {
-	target_map = std::map<int, Target>();
+	target_vect = std::vector<Target>();
+	target_idx_map = std::map<int, int>();
 }
 
 TargetNet::TargetNet(const std::string& file_name)
 {
-	target_map = std::map<int, Target>();
+	target_vect = std::vector<Target>();
+	target_idx_map = std::map<int, int>();
 
 	// Variables to read the line and find the substrings
 	std::ifstream file(file_name.c_str());
@@ -40,12 +42,24 @@ TargetNet::TargetNet(const std::string& file_name)
 		target_y_coord = std::stod(line.substr(start_pos, end_pos - start_pos));
 
 		std::cout << target_idx << "  " << target_x_coord << "   " << target_y_coord << std::endl;
-		target_map[target_idx] = Target(target_idx, target_x_coord, target_y_coord);
+		// Adding the new target at the back of the vector
+		target_vect.push_back(Target(target_vect.size(), target_x_coord, target_y_coord));
+		// Saving the index, will used again for the output
+		target_idx_map[target_idx_map.size()] = target_idx;
 	}
 	file.close();
-	std::cout << "size : " << target_map.size() << std::endl;
+	std::cout << "size : " << target_vect.size() << std::endl;
 }
 
 TargetNet::~TargetNet()
 {
+}
+
+int TargetNet::get_target_number() const
+{
+	return target_vect.size();
+}
+const std::vector<Target>& TargetNet::get_target_vect() const
+{
+	return target_vect;
 }

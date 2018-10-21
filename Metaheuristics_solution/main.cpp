@@ -1,13 +1,14 @@
-#include "Targetnet.h"
+#include "NeighborGraph.h"
 
 int main()
 {
 	std::cout << "Hello me" << std::endl;
 
 	// Modify the path to access your favorite dat file
-	std::string file_path("C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/Instances/captANOR225_9_20.dat");
-	
-	TargetNet target_net(file_path);
+	//std::string file_path("C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/Instances/captANOR225_9_20.dat");
+	std::string file_path("C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/Instances/test.dat");
 
+	TargetNet target_net(file_path);
+	NeighborGraph captation_graph(target_net, 1.0);
 	return 0;
 }

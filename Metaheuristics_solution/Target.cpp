@@ -17,3 +17,18 @@ Target::Target(const int& init_idx, const double& init_x_coord, const double& in
 Target::~Target()
 {
 }
+
+int Target::get_index() const
+{
+	return index;
+}
+
+double Target::get_x_coord() const
+{
+	return x_coord;
+}
+
+double Target::get_y_coord() const
+{
+	return y_coord;
+}
