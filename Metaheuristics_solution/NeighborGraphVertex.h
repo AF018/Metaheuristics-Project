@@ -14,6 +14,7 @@ public:
 	~NeighborGraphVertex();
 	int get_index() const;
 	void AddNeighbor(const NeighborGraphVertex* neighbor_vertex);
+	void RemoveNeighbor(const NeighborGraphVertex* neighbor_vertex);
 	std::set<NeighborGraphVertex const*> const & get_neighbors_set() const;
 };
 

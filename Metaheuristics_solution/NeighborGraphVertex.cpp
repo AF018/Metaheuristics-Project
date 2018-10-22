@@ -29,3 +29,8 @@ void NeighborGraphVertex::AddNeighbor(const NeighborGraphVertex* neighbor_vertex
 {
 	neighbors_set.insert(neighbor_vertex);
 }
+
+void NeighborGraphVertex::RemoveNeighbor(const NeighborGraphVertex * neighbor_vertex)
+{
+	neighbors_set.erase(neighbor_vertex);
+}
