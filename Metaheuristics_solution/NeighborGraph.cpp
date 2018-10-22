@@ -62,10 +62,56 @@ NeighborGraph::~NeighborGraph()
 
 bool NeighborGraph::CheckSolutionConnexity(const Solution& solution)
 {
+	// Using a BFS to check if the solution set is connex
+	// u is for undiscovered, d for discovered and p for processed 
+	std::map<int, char> idx_to_state_map;
+	for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
+	{
+		if (solution.IsVertexInSolution(vertex_idx))
+		{
+			idx_to_state_map[vertex_idx] = 'u';
+		}
+	}
+	std::queue<NeighborGraphVertex const *> bfs_queue;
+	NeighborGraphVertex const * current_vertex;
+	// Push one element in the queue
+	bfs_queue.push(vertices_vect[(idx_to_state_map.begin()->first)]);
+	while (not bfs_queue.empty())
+	{
+		current_vertex = bfs_queue.front();
+		bfs_queue.pop();
+		std::set<NeighborGraphVertex const*> const * vertex_neighbors_set = current_vertex->get_neighbors_set();
+		std::set<NeighborGraphVertex const*>::const_iterator vertex_neighbors_it = vertex_neighbors_set->begin();
+		std::map<int, char>::iterator idx_to_state_it;
+		for (; vertex_neighbors_it != vertex_neighbors_set->end(); vertex_neighbors_it++)
+		{
+			int neighbor_idx = (*vertex_neighbors_it)->get_index();
+			idx_to_state_it = idx_to_state_map.find(neighbor_idx);
+			if (idx_to_state_it != idx_to_state_map.end())
+			{
+				// Only process if the vertex is part of the solution
+				char vertex_state = idx_to_state_it->second;
+				if (vertex_state == 'u')
+				{
+
+				}
+				else if (vertex_state == 'd')
+				{
+
+				}
+				else if (vertex_state == 'p')
+				{
+
+				}
+			}
+		}
+
+	}
+
 	return false;
 }
 
-bool NeighborGraph::CheckSolutionDominance(const Solution& solution)
+bool NeighborGraph::CheckSolutionDomination(const Solution& solution)
 {
 	// Vector telling if each vertex is covered by the solution
 	int covered_vertices_number = 0;

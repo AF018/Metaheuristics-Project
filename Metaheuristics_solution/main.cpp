@@ -17,6 +17,6 @@ int main()
 	naive_solution.AddVertexToTheSolution(1);
 	naive_solution.AddVertexToTheSolution(4);
 	naive_solution.AddVertexToTheSolution(7);
-	std::cout << captation_graph.CheckSolutionDominance(naive_solution) << std::endl;
+	std::cout << captation_graph.CheckSolutionDomination(naive_solution) << std::endl;
 	return 0;
 }

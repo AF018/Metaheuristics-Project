@@ -1,5 +1,7 @@
 #pragma once
 
+#include <queue>
+
 #include "NeighborGraphVertex.h"
 #include "TargetNet.h"
 #include "Solution.h"
@@ -21,6 +23,6 @@ public:
 	// Check function to be used on the communication graph
 	bool CheckSolutionConnexity(const Solution& solution);
 	// Check function to be used on the captation graph
-	bool CheckSolutionDominance(const Solution& solution);
+	bool CheckSolutionDomination(const Solution& solution);
 };
 
