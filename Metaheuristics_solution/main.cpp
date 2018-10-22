@@ -16,7 +16,8 @@ int main()
 	Solution naive_solution(target_net.get_target_number(), false);
 	naive_solution.AddVertexToTheSolution(1);
 	naive_solution.AddVertexToTheSolution(4);
-	naive_solution.AddVertexToTheSolution(7);
+	naive_solution.AddVertexToTheSolution(8);
 	std::cout << captation_graph.CheckSolutionDomination(naive_solution) << std::endl;
+	std::cout << captation_graph.CheckSolutionConnexity(naive_solution) << std::endl;
 	return 0;
 }

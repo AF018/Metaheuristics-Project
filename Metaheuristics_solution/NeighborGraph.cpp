@@ -65,6 +65,7 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution)
 	// Using a BFS to check if the solution set is connex
 	// u is for undiscovered, d for discovered and p for processed 
 	std::map<int, char> idx_to_state_map;
+	int processed_vertices_number = 0;
 	for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
 	{
 		if (solution.IsVertexInSolution(vertex_idx))
@@ -93,22 +94,17 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution)
 				char vertex_state = idx_to_state_it->second;
 				if (vertex_state == 'u')
 				{
-
+					vertex_state = 'd';
+					bfs_queue.push(*vertex_neighbors_it);
 				}
-				else if (vertex_state == 'd')
-				{
-
-				}
-				else if (vertex_state == 'p')
-				{
-
-				}
+				// Do nothing if the vertex has been discovered or processed
 			}
 		}
-
+		idx_to_state_map[current_vertex->get_index()] = 'p';
+		processed_vertices_number++;
 	}
-
-	return false;
+	std::cout << "found a connex component of size " << processed_vertices_number << "/" << idx_to_state_map.size() << std::endl;
+	return (processed_vertices_number==idx_to_state_map.size());
 }
 
 bool NeighborGraph::CheckSolutionDomination(const Solution& solution)
