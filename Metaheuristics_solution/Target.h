@@ -8,8 +8,10 @@ class Target
 	double x_coord;
 	double y_coord;
 public:
+	// Default constructor
 	Target();
 	Target(const int& init_idx, const double& x_coord, const double& y_coord);
+	// Default destructor
 	virtual ~Target();
 	int get_index() const;
 	double get_x_coord() const;

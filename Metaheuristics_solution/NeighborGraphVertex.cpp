@@ -7,14 +7,25 @@ NeighborGraphVertex::NeighborGraphVertex()
 NeighborGraphVertex::NeighborGraphVertex(const int& init_index)
 {
 	index = init_index;
-	neighbors_set = std::set<int>();
+	neighbors_set = std::set<NeighborGraphVertex const*>();
 }
 
 NeighborGraphVertex::~NeighborGraphVertex()
 {
 }
 
-void NeighborGraphVertex::AddNeighbor(const int& neighbor_idx)
+int NeighborGraphVertex::get_index() const
 {
-	neighbors_set.insert(neighbor_idx);
+	return index;
+}
+
+std::set<NeighborGraphVertex const*> const * NeighborGraphVertex::get_neighbors_set() const
+{
+	return &neighbors_set;
+}
+
+
+void NeighborGraphVertex::AddNeighbor(const NeighborGraphVertex* neighbor_vertex)
+{
+	neighbors_set.insert(neighbor_vertex);
 }

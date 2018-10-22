@@ -15,9 +15,11 @@ class TargetNet
 	// Maps each target index to its index in the input file
 	std::map<int, int> target_idx_map;
 public:
+	// Default constructor
 	TargetNet();
 	TargetNet(const std::string& file_name);
+	// Default destructor
 	virtual ~TargetNet();
 	int get_target_number() const;
-	const std::vector<Target>& get_target_vect() const;
+	std::vector<Target> const* get_target_vect() const;
 };
