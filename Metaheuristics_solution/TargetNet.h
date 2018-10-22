@@ -21,5 +21,5 @@ public:
 	// Default destructor
 	virtual ~TargetNet();
 	int get_target_number() const;
-	std::vector<Target> const* get_target_vect() const;
+	std::vector<Target> const & get_target_vect() const;
 };

@@ -1,6 +1,10 @@
 # Metaheuristics-Project
 Heuristics and metaheuristics implementation for the corresponding course at the MPRO
 
+Some sets/vectors/maps ahve accessors that return pointers instead of references, that has to be changed
+
 The construction of the neighbor graph is not optimized for now, i.e. all distances between every pair of points are computed, which is a waste of time.
 
 It may be more efficient to compute directly in the Solution class a set/map/vector of all the vertices constituting the solution because it is often asked, for instance in both checks.
+
+Also interesting to randomize the behavior of the heuristic.

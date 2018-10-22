@@ -19,9 +19,9 @@ int NeighborGraphVertex::get_index() const
 	return index;
 }
 
-std::set<NeighborGraphVertex const*> const * NeighborGraphVertex::get_neighbors_set() const
+std::set<NeighborGraphVertex const*> const & NeighborGraphVertex::get_neighbors_set() const
 {
-	return &neighbors_set;
+	return neighbors_set;
 }
 
 

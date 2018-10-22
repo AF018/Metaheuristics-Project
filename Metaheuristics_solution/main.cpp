@@ -1,4 +1,4 @@
-#include "NeighborGraph.h"
+#include "Heuristics.h"
 
 int main()
 {
@@ -17,7 +17,10 @@ int main()
 	naive_solution.AddVertexToTheSolution(1);
 	naive_solution.AddVertexToTheSolution(4);
 	naive_solution.AddVertexToTheSolution(8);
-	std::cout << captation_graph.CheckSolutionDomination(naive_solution) << std::endl;
-	std::cout << captation_graph.CheckSolutionConnexity(naive_solution) << std::endl;
+	//std::cout << captation_graph.CheckSolutionDomination(naive_solution) << std::endl;
+	//std::cout << captation_graph.CheckSolutionConnexity(naive_solution) << std::endl;
+	
+	NaiveHeuristic(captation_graph, communication_graph);
+	
 	return 0;
 }

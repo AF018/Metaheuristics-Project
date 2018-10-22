@@ -6,10 +6,10 @@ Solution::Solution()
 	solution_value = 0;
 }
 
-Solution::Solution(const int& vertex_number, const bool& put_all_vertices)
+Solution::Solution(const int& vertex_number, const bool& put_all_vertices_to)
 {
-	solution_vect = std::vector<bool>(vertex_number, put_all_vertices);
-	if (put_all_vertices)
+	solution_vect = std::vector<bool>(vertex_number, put_all_vertices_to);
+	if (put_all_vertices_to)
 	{
 		solution_value = vertex_number;
 	}
@@ -23,9 +23,9 @@ Solution::~Solution()
 {
 }
 
-std::vector<bool> const * Solution::get_solution_vect() const
+std::vector<bool> const & Solution::get_solution_vect() const
 {
-	return &solution_vect;
+	return solution_vect;
 }
 
 bool Solution::IsVertexInSolution(int const & vertex_idx) const

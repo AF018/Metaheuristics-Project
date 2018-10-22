@@ -60,7 +60,7 @@ int TargetNet::get_target_number() const
 	return target_vect.size();
 }
 
-std::vector<Target> const* TargetNet::get_target_vect() const
+std::vector<Target> const & TargetNet::get_target_vect() const
 {
-	return &target_vect;
+	return target_vect;
 }
