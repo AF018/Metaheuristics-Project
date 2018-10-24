@@ -24,13 +24,18 @@ std::set<NeighborGraphVertex const*> const & NeighborGraphVertex::get_neighbors_
 	return neighbors_set;
 }
 
+int NeighborGraphVertex::get_degree() const
+{
+	return neighbors_set.size();
+}
 
-void NeighborGraphVertex::AddNeighbor(const NeighborGraphVertex* neighbor_vertex)
+
+void NeighborGraphVertex::AddEdge(const NeighborGraphVertex* neighbor_vertex)
 {
 	neighbors_set.insert(neighbor_vertex);
 }
 
-void NeighborGraphVertex::RemoveNeighbor(const NeighborGraphVertex * neighbor_vertex)
+void NeighborGraphVertex::RemoveEdge(const NeighborGraphVertex * neighbor_vertex)
 {
 	neighbors_set.erase(neighbor_vertex);
 }

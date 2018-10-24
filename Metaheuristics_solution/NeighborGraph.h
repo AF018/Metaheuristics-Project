@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <iterator>
 #include <queue>
 #include <unordered_map>
 
@@ -10,10 +12,7 @@
 class NeighborGraph
 {
 	std::unordered_map<int, NeighborGraphVertex*> vertices_hashtable;
-	// vector including the degree of each vertex for faster access
-	std::unordered_map<int, int> degree_hashtable;
 	int vertices_number;
-	int edges_number;
 public:
 	// Default constructor
 	NeighborGraph();
@@ -24,14 +23,16 @@ public:
 	// Default destructor
 	virtual ~NeighborGraph();
 	std::unordered_map<int, NeighborGraphVertex*> const & get_vertices_hashtable() const;
-	std::unordered_map<int, int> const & get_degree_hashtable() const;
 	int get_vertices_number() const;
-	int get_edges_number() const;
+	int get_vertex_degree(int const & vertex_idx) const;
 	// Check to be used on the communication graph
-	bool CheckSolutionConnexity(const Solution& solution);
+	bool CheckSolutionConnexity(const Solution& solution) const;
+	// Returns the set of neighbors of a given vertex indices set
+	std::set<int> GetNeighbors(std::set<int> const & vertex_indices_set) const;
 	// Check to be used on the captation graph
-	bool CheckSolutionDomination(const Solution& solution);
-	// Removes the vertex and its neighbors from the graph
-	void RemoveVertexAndNeighbors(const int& vertex_idx_to_remove);
+	bool CheckSolutionDomination(const Solution& solution) const;
+	// Removes the vertex and the incoming edges of its neighbors from the graph
+	// Returns a set of these neighbors
+	std::set<int> HeuristicRemoval(const int& vertex_idx_to_remove);
 };
 

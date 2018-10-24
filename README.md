@@ -4,6 +4,7 @@ Heuristics and metaheuristics implementation for the corresponding course at the
 Display the vertices of the graph with its neghbors and its index for sanity check
 
 The construction of the neighbor graph is not optimized for now, i.e. all distances between every pair of points are computed, which is a waste of time.
+Changing sets to unordered_sets (if it does not affect the algorithms) is a good way to improve the complexity for basic tasks
 
 It may be more efficient to compute directly in the Solution class a set/map/vector of all the vertices constituting the solution because it is often asked, for instance in both checks.
 
