@@ -2,32 +2,31 @@
 
 NeighborGraph::NeighborGraph()
 {
-	vertices_hashtable = std::unordered_map<int, NeighborGraphVertex*>();
 	vertices_number = 0;
+	edges_vector = std::vector<std::vector<int> >();
 }
 
 NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_distance)
 {
-	vertices_number = 0;
+	vertices_number = target_net.get_target_number();
+	edges_vector = std::vector<std::vector<int> >();
 
 	double square_max_dist = pow(max_distance, 2);
 	std::vector<Target> const & target_vect = target_net.get_target_vect();
 	std::vector<Target>::const_iterator it_i = target_vect.begin();
 	std::vector<Target>::const_iterator it_j = target_vect.begin();
 
-	// Creating the vertices
+
 	for (it_i = target_vect.begin(); it_i < target_vect.end(); it_i++)
 	{
-		// The vertex index corresponds to the index in the vector of the target_net
-		// In some cases, it might be different from the index contained in the corresponding Target instance
-		vertices_hashtable[vertices_number] = new NeighborGraphVertex(vertices_number);
-		vertices_number++;
+		edges_vector.push_back(std::vector<int>());
 	}
 
 	int edge_number = 0;
 	// Creating the edges
 	for (it_i = target_vect.begin(); it_i < target_vect.end(); it_i++)
 	{
+		edges_vector.push_back(std::vector<int>());
 		for (it_j = std::next(it_i); it_j < target_vect.end(); it_j++)
 		{
 			// Computing the distance between i and j
@@ -35,9 +34,9 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 							+ pow(it_i->get_y_coord() - it_j->get_y_coord(), 2);
 			if (i_j_dist <= square_max_dist)
 			{
-				// Adding the edge in both directions (undirected graph)
-				vertices_hashtable[it_i->get_index()]->AddEdge(vertices_hashtable[it_j->get_index()]);
-				vertices_hashtable[it_j->get_index()]->AddEdge(vertices_hashtable[it_i->get_index()]);
+				// Adding the edge
+				edges_vector[it_i->get_index()].push_back(it_j->get_index());
+				edges_vector[it_j->get_index()].push_back(it_i->get_index());
 				edge_number++;
 			}
 		}
@@ -46,45 +45,13 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 	std::cout << "edge number : " << edge_number << std::endl;
 }
 
-NeighborGraph::NeighborGraph(const NeighborGraph & original_graph)
-{
-	vertices_number = 0;
-	// Copying vertices_hashtable, but by hand because of the pointers
-	std::unordered_map<int, NeighborGraphVertex*> const & original_vertices_hashtable = original_graph.get_vertices_hashtable();
-	std::unordered_map<int, NeighborGraphVertex*>::const_iterator vertex_it = original_vertices_hashtable.begin();
-	vertices_hashtable = std::unordered_map<int, NeighborGraphVertex*>();
-	for (; vertex_it != original_vertices_hashtable.end(); vertex_it++)
-	{
-		vertices_hashtable[vertices_number] = new NeighborGraphVertex(vertices_number);
-		vertices_number++;
-	}
-
-	std::set<NeighborGraphVertex const*>::const_iterator neighbors_set_it;
-	for (int vertex_idx=0; vertex_idx<vertices_number; vertex_idx++)
-	{
-		std::set<NeighborGraphVertex const*> const & neighbors_set = original_vertices_hashtable.at(vertex_idx)->get_neighbors_set();
-		for (neighbors_set_it = neighbors_set.begin(); neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
-		{
-			// Adding to the vertex of the new instance the same neighbors that the original vertex has
-			int neighbor_idx = (*neighbors_set_it)->get_index();
-			vertices_hashtable[vertex_idx]->AddEdge(vertices_hashtable[neighbor_idx]);
-		}
-	}
-}
-
 NeighborGraph::~NeighborGraph()
 {
-	// Pointers to NeighborGraphVertex in the vector vertices_hashtable need to be deleted
-	std::unordered_map<int, NeighborGraphVertex*>::iterator vertex_it = vertices_hashtable.begin();
-	for (; vertex_it != vertices_hashtable.end(); vertex_it++)
-	{
-		delete vertex_it->second;
-	}
 }
 
-std::unordered_map<int, NeighborGraphVertex*> const & NeighborGraph::get_vertices_hashtable() const
+std::vector<std::vector<int> > const & NeighborGraph::get_edges_vector() const
 {
-	return vertices_hashtable;
+	return edges_vector;
 }
 
 int NeighborGraph::get_vertices_number() const
@@ -94,7 +61,7 @@ int NeighborGraph::get_vertices_number() const
 
 int NeighborGraph::get_vertex_degree(int const & vertex_idx) const
 {
-	return vertices_hashtable.at(vertex_idx)->get_degree();
+	return edges_vector.at(vertex_idx).size();
 }
 
 bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
@@ -110,20 +77,20 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
 			idx_to_state_map[vertex_idx] = 'u';
 		}
 	}
-	std::queue<NeighborGraphVertex const *> bfs_queue;
-	NeighborGraphVertex const * current_vertex;
-	// Push one element in the queue
-	bfs_queue.push(vertices_hashtable.at(idx_to_state_map.begin()->first));
+	std::queue<int> bfs_queue;
+	int current_vertex_idx;
+	// Push the well vertex in the queue
+	bfs_queue.push(0);
 	while (not bfs_queue.empty())
 	{
-		current_vertex = bfs_queue.front();
+		current_vertex_idx = bfs_queue.front();
 		bfs_queue.pop();
-		std::set<NeighborGraphVertex const*> const & vertex_neighbors_set = current_vertex->get_neighbors_set();
-		std::set<NeighborGraphVertex const*>::const_iterator vertex_neighbors_it = vertex_neighbors_set.begin();
+		std::vector<int> const & vertex_neighbors_vector = edges_vector[current_vertex_idx];
+		std::vector<int>::const_iterator vertex_neighbors_it = vertex_neighbors_vector.begin();
 		std::map<int, char>::iterator idx_to_state_it;
-		for (; vertex_neighbors_it != vertex_neighbors_set.end(); vertex_neighbors_it++)
+		for (; vertex_neighbors_it != vertex_neighbors_vector.end(); vertex_neighbors_it++)
 		{
-			int neighbor_idx = (*vertex_neighbors_it)->get_index();
+			int neighbor_idx = *vertex_neighbors_it;
 			idx_to_state_it = idx_to_state_map.find(neighbor_idx);
 			if (idx_to_state_it != idx_to_state_map.end())
 			{
@@ -136,69 +103,58 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
 				// Do nothing if the vertex has been discovered or processed
 			}
 		}
-		idx_to_state_map[current_vertex->get_index()] = 'p';
+		idx_to_state_map[current_vertex_idx] = 'p';
 		processed_vertices_number++;
 	}
 	std::cout << "Found a connex component of size " << processed_vertices_number << "/" << idx_to_state_map.size() << std::endl;
 	return (processed_vertices_number==idx_to_state_map.size());
 }
 
-std::set<int> NeighborGraph::GetNeighbors(std::set<int> const & vertex_indices_set) const
+std::set<int> NeighborGraph::GetNeighbors(std::vector<int> const & vertex_indices_vector) const
 {
 	std::set<int> final_neighbors_set;
 
 	int neighbor_idx;
-	std::set<int>::const_iterator vertex_indices_set_it = vertex_indices_set.begin();
-	for (; vertex_indices_set_it != vertex_indices_set.end(); vertex_indices_set_it++)
+	std::vector<int>::const_iterator vertex_indices_vector_it = vertex_indices_vector.begin();
+	for (; vertex_indices_vector_it != vertex_indices_vector.end(); vertex_indices_vector_it++)
 	{
-		std::set<NeighborGraphVertex const *> const & neighbors_set = (vertices_hashtable.at(*vertex_indices_set_it)->get_neighbors_set());
-		std::set<NeighborGraphVertex const *>::const_iterator neighbors_set_it = neighbors_set.begin();
-		for (; neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
+		std::vector<int> const & neighbors_vector = (edges_vector.at(*vertex_indices_vector_it));
+		std::vector<int>::const_iterator neighbors_vector_it = neighbors_vector.begin();
+		for (; neighbors_vector_it != neighbors_vector.end(); neighbors_vector_it++)
 		{
-			neighbor_idx = (*neighbors_set_it)->get_index();
-			if (vertex_indices_set.find(neighbor_idx) == vertex_indices_set.end())
-			{
-				final_neighbors_set.insert(neighbor_idx);
-			}
+			neighbor_idx = *neighbors_vector_it;
+			final_neighbors_set.insert(neighbor_idx);
 		}
 	}
+	// Sorting just to make sure, needed for the heuristic
+	//std::sort(final_neighbors_set.begin(), final_neighbors_set.end());
 	return final_neighbors_set;
 }
 
-std::set<int> NeighborGraph::GetNeighbors(int const & vertex_index) const
+std::vector<int> const & NeighborGraph::GetNeighbors(int const & vertex_index) const
 {
-	std::set<int> neighbor_idx_set;
-	std::set<NeighborGraphVertex const *> neighbors_set = vertices_hashtable.at(vertex_index)->get_neighbors_set();
-	std::set<NeighborGraphVertex const *>::iterator neighbors_set_it = neighbors_set.begin();
-	for (; neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
-	{
-		neighbor_idx_set.insert((*neighbors_set_it)->get_index());
-	}
-	return neighbor_idx_set;
-
-	//std::set<int> vertex_idx_set;
-	//vertex_idx_set.insert(vertex_index);
-	//return GetNeighbors(vertex_idx_set);
+	return edges_vector.at(vertex_index);
 }
 
 bool NeighborGraph::CheckSolutionDomination(const Solution& solution) const
 {
-	std::set<int> solution_vertex_set;
+	std::vector<int> solution_vertex_vector;
 	for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
 	{
 		if (solution.IsVertexInSolution(vertex_idx))
 		{
-			solution_vertex_set.insert(vertex_idx);
+			solution_vertex_vector.push_back(vertex_idx);
 		}
 	}
-	std::set<int> neighbors_set = GetNeighbors(solution_vertex_set);
+	std::set<int> neighbors_vector = GetNeighbors(solution_vertex_vector);
 
 	// Merging the two sets to get the set of covered vertices
-	std::set<int> union_set;
-	std::merge(solution_vertex_set.begin(), solution_vertex_set.end(),
-		neighbors_set.begin(), neighbors_set.end(),
-		std::inserter(union_set, union_set.begin()));
-	int covered_vertices_number = union_set.size();
+	// The two vectors are already sorted
+	std::set<int> union_vector;
+	std::merge(solution_vertex_vector.begin(), solution_vertex_vector.end(),
+		neighbors_vector.begin(), neighbors_vector.end(),
+		std::inserter(union_vector, union_vector.begin()));
+	int covered_vertices_number = union_vector.size();
 
 	std::cout << "covered_vertices : " << covered_vertices_number << "/" << vertices_number << std::endl;
 	return (covered_vertices_number == vertices_number);
