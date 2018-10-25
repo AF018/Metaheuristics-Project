@@ -24,6 +24,7 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 		vertices_number++;
 	}
 
+	int edge_number = 0;
 	// Creating the edges
 	for (it_i = target_vect.begin(); it_i < target_vect.end(); it_i++)
 	{
@@ -37,10 +38,12 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 				// Adding the edge in both directions (undirected graph)
 				vertices_hashtable[it_i->get_index()]->AddEdge(vertices_hashtable[it_j->get_index()]);
 				vertices_hashtable[it_j->get_index()]->AddEdge(vertices_hashtable[it_i->get_index()]);
+				edge_number++;
 			}
 		}
 	}
 	std::cout << "vertex number : " << vertices_number << std::endl;
+	std::cout << "edge number : " << edge_number << std::endl;
 }
 
 NeighborGraph::NeighborGraph(const NeighborGraph & original_graph)
@@ -56,9 +59,6 @@ NeighborGraph::NeighborGraph(const NeighborGraph & original_graph)
 		vertices_number++;
 	}
 
-	// Variable for testing, to be deleted
-	int test_edge_count = 0;
-
 	std::set<NeighborGraphVertex const*>::const_iterator neighbors_set_it;
 	for (int vertex_idx=0; vertex_idx<vertices_number; vertex_idx++)
 	{
@@ -68,11 +68,8 @@ NeighborGraph::NeighborGraph(const NeighborGraph & original_graph)
 			// Adding to the vertex of the new instance the same neighbors that the original vertex has
 			int neighbor_idx = (*neighbors_set_it)->get_index();
 			vertices_hashtable[vertex_idx]->AddEdge(vertices_hashtable[neighbor_idx]);
-			test_edge_count++;
 		}
 	}
-	std::cout << "Copy just done, number of edges : " << test_edge_count / 2 << std::endl;
-	std::cout << "And the number of vertices : " << vertices_number << std::endl;
 }
 
 NeighborGraph::~NeighborGraph()
@@ -142,7 +139,7 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
 		idx_to_state_map[current_vertex->get_index()] = 'p';
 		processed_vertices_number++;
 	}
-	std::cout << "found a connex component of size " << processed_vertices_number << "/" << idx_to_state_map.size() << std::endl;
+	std::cout << "Found a connex component of size " << processed_vertices_number << "/" << idx_to_state_map.size() << std::endl;
 	return (processed_vertices_number==idx_to_state_map.size());
 }
 
@@ -168,6 +165,22 @@ std::set<int> NeighborGraph::GetNeighbors(std::set<int> const & vertex_indices_s
 	return final_neighbors_set;
 }
 
+std::set<int> NeighborGraph::GetNeighbors(int const & vertex_index) const
+{
+	std::set<int> neighbor_idx_set;
+	std::set<NeighborGraphVertex const *> neighbors_set = vertices_hashtable.at(vertex_index)->get_neighbors_set();
+	std::set<NeighborGraphVertex const *>::iterator neighbors_set_it = neighbors_set.begin();
+	for (; neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
+	{
+		neighbor_idx_set.insert((*neighbors_set_it)->get_index());
+	}
+	return neighbor_idx_set;
+
+	//std::set<int> vertex_idx_set;
+	//vertex_idx_set.insert(vertex_index);
+	//return GetNeighbors(vertex_idx_set);
+}
+
 bool NeighborGraph::CheckSolutionDomination(const Solution& solution) const
 {
 	std::set<int> solution_vertex_set;
@@ -191,52 +204,59 @@ bool NeighborGraph::CheckSolutionDomination(const Solution& solution) const
 	return (covered_vertices_number == vertices_number);
 }
 
-std::set<int> NeighborGraph::HeuristicRemoval(const int & vertex_idx_to_remove)
-{
-	std::set<int> neighbors_idx_set;
-	std::cout << "index to remove : " << vertex_idx_to_remove << std::endl;
-	std::cout << "size of its neighbor set : " << vertices_hashtable[vertex_idx_to_remove]->get_neighbors_set().size() << std::endl;
-
-	std::set<NeighborGraphVertex const *> const & neighbors_set = vertices_hashtable[vertex_idx_to_remove]->get_neighbors_set();
-	std::set<NeighborGraphVertex const *>::const_iterator neighbors_set_it = neighbors_set.begin();
-	int neighbor_idx = 0;
-	NeighborGraphVertex const * neighbor_vertex = nullptr;
-	for (; neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
-	{
-		neighbor_vertex = *neighbors_set_it;
-		neighbor_idx = neighbor_vertex->get_index();
-		neighbors_idx_set.insert(neighbor_idx);
-		if (neighbor_vertex->get_degree() > 0)
-		{
-			std::set<NeighborGraphVertex const *> const & neighbors_of_neighbor_set = neighbor_vertex->get_neighbors_set();
-			std::set<NeighborGraphVertex const *>::const_iterator neighbors_of_neighbor_set_it = neighbors_of_neighbor_set.begin();
-			// Removing each neighbor vertex from all its own neighbors' neighbor sets
-			for (; neighbors_of_neighbor_set_it != neighbors_of_neighbor_set.end(); neighbors_of_neighbor_set_it++)
-			{
-				int neighbor_of_neighbor_idx = (*neighbors_of_neighbor_set_it)->get_index();
-				if (neighbor_of_neighbor_idx != vertex_idx_to_remove)
-				{
-					std::cout << "neighbor idx : " << neighbor_idx << "  neighbor of neighbor idx : " << neighbor_of_neighbor_idx << std::endl;
-					// Check to see if the neighbor of neighbor is not the original vertex to remove
-					// Messes up with the deletion process if we remove its neighbors now
-					vertices_hashtable[neighbor_of_neighbor_idx]->RemoveEdge(neighbor_vertex);
-				}
-			}
-		}
-	}
-	// Deleting the edges pointing towards each element of the neighbors_set
-	for (neighbors_set_it = neighbors_set.begin(); neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
-	{
-		// Every edge pointing to the vertex to remove is removed
-		// This cannot be done before or it messes with the neighbor container traversal
-		neighbor_vertex = *neighbors_set_it;
-		neighbor_idx = neighbor_vertex->get_index();
-		vertices_hashtable[neighbor_idx]->RemoveEdge(vertices_hashtable[vertex_idx_to_remove]);
-	}
-	// Deleting the original vertex
-	vertices_number--;
-	delete vertices_hashtable[vertex_idx_to_remove];
-	vertices_hashtable.erase(vertex_idx_to_remove);
-	std::cout << "Vertices number : " << vertices_number << std::endl;
-	return neighbors_idx_set;
-}
+//std::set<int> NeighborGraph::HeuristicRemoval(const int & vertex_idx_to_remove)
+//{
+//	std::set<int> neighbors_idx_set;
+//	std::cout << "index to remove : " << vertex_idx_to_remove << std::endl;
+//	std::cout << "size of its neighbor set : " << vertices_hashtable[vertex_idx_to_remove]->get_neighbors_set().size() << std::endl;
+//
+//	std::set<NeighborGraphVertex const *> const & neighbors_set = vertices_hashtable[vertex_idx_to_remove]->get_neighbors_set();
+//	std::set<NeighborGraphVertex const *>::const_iterator neighbors_set_it = neighbors_set.begin();
+//	int neighbor_idx = 0;
+//	NeighborGraphVertex const * neighbor_vertex = nullptr;
+//	for (; neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
+//	{
+//		neighbor_vertex = *neighbors_set_it;
+//		neighbor_idx = neighbor_vertex->get_index();
+//		neighbors_idx_set.insert(neighbor_idx);
+//		if (neighbor_vertex->get_degree() > 0)
+//		{
+//			std::set<NeighborGraphVertex const *> const & neighbors_of_neighbor_set = neighbor_vertex->get_neighbors_set();
+//			std::set<NeighborGraphVertex const *>::const_iterator neighbors_of_neighbor_set_it = neighbors_of_neighbor_set.begin();
+//			// Removing each neighbor vertex from all its own neighbors' neighbor sets
+//			for (; neighbors_of_neighbor_set_it != neighbors_of_neighbor_set.end(); neighbors_of_neighbor_set_it++)
+//			{
+//				int neighbor_of_neighbor_idx = (*neighbors_of_neighbor_set_it)->get_index();
+//				if (neighbor_of_neighbor_idx != vertex_idx_to_remove)
+//				{
+//					std::cout << "neighbor idx : " << neighbor_idx << "  neighbor of neighbor idx : " << neighbor_of_neighbor_idx << std::endl;
+//					// Check to see if the neighbor of neighbor is not the original vertex to remove
+//					// Messes up with the deletion process if we remove its neighbors now
+//					vertices_hashtable[neighbor_of_neighbor_idx]->RemoveEdge(neighbor_vertex);
+//				}
+//			}
+//		}
+//	}
+//	// Deleting the edges pointing towards each element of the neighbors_set
+//	for (neighbors_set_it = neighbors_set.begin(); neighbors_set_it != neighbors_set.end(); neighbors_set_it++)
+//	{
+//		// Every edge pointing to the vertex to remove is removed
+//		// This cannot be done before or it messes with the neighbor container traversal
+//		neighbor_vertex = *neighbors_set_it;
+//		neighbor_idx = neighbor_vertex->get_index();
+//		//vertices_hashtable[neighbor_idx]->RemoveEdge(vertices_hashtable[vertex_idx_to_remove]);
+//
+//		vertices_hashtable.erase(neighbor_idx);
+//		vertices_number--;
+//		std::cout << "erased the neighbor : " << neighbor_idx << std::endl;
+//		delete neighbor_vertex;
+//		std::cout << "deleted the neighbor pointer" << std::endl;
+//
+//	}
+//	// Deleting the original vertex
+//	vertices_number--;
+//	delete vertices_hashtable[vertex_idx_to_remove];
+//	vertices_hashtable.erase(vertex_idx_to_remove);
+//	std::cout << "Vertices number : " << vertices_number << std::endl;
+//	return neighbors_idx_set;
+//}

@@ -2,10 +2,9 @@
 
 
 
-NaiveHeuristicGraph::NaiveHeuristicGraph()
+NaiveHeuristicGraph::NaiveHeuristicGraph(): NeighborGraph()
 {
 }
-
 
 NaiveHeuristicGraph::~NaiveHeuristicGraph()
 {

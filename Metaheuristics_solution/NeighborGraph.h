@@ -29,6 +29,8 @@ public:
 	bool CheckSolutionConnexity(const Solution& solution) const;
 	// Returns the set of neighbors of a given vertex indices set
 	std::set<int> GetNeighbors(std::set<int> const & vertex_indices_set) const;
+	// Returns the set of neighbors of a given vertex index
+	std::set<int> GetNeighbors(int const & vertex_index) const;
 	// Check to be used on the captation graph
 	bool CheckSolutionDomination(const Solution& solution) const;
 	// Removes the vertex and the incoming edges of its neighbors from the graph

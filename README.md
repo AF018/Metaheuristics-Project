@@ -1,6 +1,10 @@
 # Metaheuristics-Project
 Heuristics and metaheuristics implementation for the corresponding course at the MPRO
 
+Consider the well as a a starting point in the BFS, might cause trouble otherwise
+GetNeighbors recupere aussi les elements voisins qui sont dans l'ensemble de base, changer et renommer en GetCoveredVertices
+Option to show vertices when constructing ?
+
 Display the vertices of the graph with its neghbors and its index for sanity check
 
 The construction of the neighbor graph is not optimized for now, i.e. all distances between every pair of points are computed, which is a waste of time.

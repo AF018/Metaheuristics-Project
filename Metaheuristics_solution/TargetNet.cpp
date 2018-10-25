@@ -41,14 +41,14 @@ TargetNet::TargetNet(const std::string& file_name)
 		end_pos = line.find(' ', start_pos);
 		target_y_coord = std::stod(line.substr(start_pos, end_pos - start_pos));
 
-		std::cout << target_idx << "  " << target_x_coord << "   " << target_y_coord << std::endl;
+		//std::cout << target_idx << "  " << target_x_coord << "   " << target_y_coord << std::endl;
+		
 		// Adding the new target at the back of the vector
 		target_vect.push_back(Target(target_vect.size(), target_x_coord, target_y_coord));
 		// Saving the index, will used again for the output
 		target_idx_map[target_idx_map.size()] = target_idx;
 	}
 	file.close();
-	std::cout << "size : " << target_vect.size() << std::endl;
 }
 
 TargetNet::~TargetNet()
