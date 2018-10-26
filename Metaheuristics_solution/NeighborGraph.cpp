@@ -106,7 +106,7 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
 		idx_to_state_map[current_vertex_idx] = 'p';
 		processed_vertices_number++;
 	}
-	std::cout << "Found a connex component of size " << processed_vertices_number << "/" << idx_to_state_map.size() << std::endl;
+	std::cout << "Found a connex component of size " << processed_vertices_number << "/" << idx_to_state_map.size()  << std::endl;
 	return (processed_vertices_number==idx_to_state_map.size());
 }
 
@@ -126,6 +126,13 @@ std::set<int> NeighborGraph::GetNeighbors(std::vector<int> const & vertex_indice
 			final_neighbors_set.insert(neighbor_idx);
 		}
 	}
+
+	// Removing the solution vertices from the neighborhood
+	//vertex_indices_vector_it = vertex_indices_vector.begin();
+	//for (; vertex_indices_vector_it != vertex_indices_vector.end(); vertex_indices_vector_it++)
+	//{
+	//	final_neighbors_set.erase(*vertex_indices_vector_it);
+	//}
 	// Sorting just to make sure, needed for the heuristic
 	//std::sort(final_neighbors_set.begin(), final_neighbors_set.end());
 	return final_neighbors_set;

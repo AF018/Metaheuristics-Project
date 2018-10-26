@@ -28,6 +28,11 @@ std::vector<bool> const & Solution::get_solution_vect() const
 	return solution_vect;
 }
 
+int Solution::get_solution_value() const
+{
+	return solution_value;
+}
+
 bool Solution::IsVertexInSolution(int const & vertex_idx) const
 {
 	return solution_vect[vertex_idx];

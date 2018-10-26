@@ -17,6 +17,7 @@ public:
 	// Default destructor
 	virtual ~Solution();
 	std::vector<bool> const & get_solution_vect() const;
+	int get_solution_value() const;
 	bool IsVertexInSolution(int const& vertex_idx) const;
 	void AddVertexToTheSolution(const int& vertex_idx);
 	void AddVerticesToTheSolution(const std::vector<int>& vertex_indices);
