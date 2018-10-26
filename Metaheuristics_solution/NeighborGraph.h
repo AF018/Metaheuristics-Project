@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iterator>
 #include <queue>
+#include <unordered_map>
 #include <set>
 
 //#include "NeighborGraphVertex.h"

@@ -69,7 +69,6 @@ Solution NaiveHeuristic(NeighborGraph captation_graph, const NeighborGraph& comm
 		//std::cout << "highest degree vertex : " << highest_potential_vertex_idx << "   added vertices : " << highest_potential << std::endl;
 		solution_vertices_vector.push_back(highest_potential_vertex_idx);
 		std::vector<int> neighbors_idx_vector = captation_edges_vector.at(highest_potential_vertex_idx);
-		//std::set<int> neighbors_idx_set = captation_graph.HeuristicRemoval(highest_potential_vertex_idx);
 		covered_vertices_set.insert(highest_potential_vertex_idx);
 		//std::cout << "Covered vertices and : " << neighbors_idx_vector.size() << std::endl;
 		for (std::vector<int>::iterator neighbors_idx_vector_it = neighbors_idx_vector.begin(); neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)

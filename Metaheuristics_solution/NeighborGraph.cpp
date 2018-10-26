@@ -68,7 +68,7 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
 {
 	// Using a BFS to check if the solution set is connex
 	// u is for undiscovered, d for discovered and p for processed 
-	std::map<int, char> idx_to_state_map;
+	std::unordered_map<int, char> idx_to_state_map;
 	int processed_vertices_number = 0;
 	for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
 	{
@@ -87,7 +87,7 @@ bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
 		bfs_queue.pop();
 		std::vector<int> const & vertex_neighbors_vector = edges_vector[current_vertex_idx];
 		std::vector<int>::const_iterator vertex_neighbors_it = vertex_neighbors_vector.begin();
-		std::map<int, char>::iterator idx_to_state_it;
+		std::unordered_map<int, char>::iterator idx_to_state_it;
 		for (; vertex_neighbors_it != vertex_neighbors_vector.end(); vertex_neighbors_it++)
 		{
 			int neighbor_idx = *vertex_neighbors_it;

@@ -4,9 +4,7 @@ Heuristics and metaheuristics implementation for the corresponding course at the
 Some vectors seem to be copied in the heuristic, that is not cool for complexity
 The edge vectors might be already ordered, must be verified
 Checj if all the vectors used in the heuristic are ordered (if necessary) and have no repeated values in em
-Consider the well as a a starting point in the BFS, might cause trouble otherwise
 Also for BFS, use vector instead of map, it will gain some time
-GetNeighbors recupere aussi les elements voisins qui sont dans l'ensemble de base, changer et renommer en GetCoveredVertices
 Option to display vertices when constructing ?
 
 Display the vertices of the graph with its neghbors and its index for sanity check

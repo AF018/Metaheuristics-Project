@@ -9,6 +9,9 @@ int main()
 	std::string file_path("C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/Instances/captANOR1500_21_500.dat");
 	//std::string file_path("C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/Instances/test_1.dat");
 
+	double captation_radius = 1.0;
+	double communication_radius = 1.0;
+
 	std::clock_t start;
 	double duration;
 
@@ -21,14 +24,14 @@ int main()
 
 	std::cout << "Constructing Captation Graph" << std::endl;
 	start = std::clock();
-	NeighborGraph captation_graph(target_net, 1.0);
+	NeighborGraph captation_graph(target_net, captation_radius);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	std::cout << "Duration : " << duration << " seconds \n";
 	std::cout << std::endl;
 	
 	std::cout << "Constructing Communication Graph" << std::endl;
 	start = std::clock();
-	NeighborGraph communication_graph(target_net, 2.0);
+	NeighborGraph communication_graph(target_net, communication_radius);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	std::cout << "Duration : " << duration << " seconds \n";
 	std::cout << std::endl;
