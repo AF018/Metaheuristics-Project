@@ -1,64 +1,76 @@
+#include "NeighborGraph.h"
 #include "Solution.h"
 
 Solution::Solution()
 {
-	solution_vect = std::vector<bool>();
+	solution_set = unordered_set<int>();
 	solution_value = 0;
+	solution_captation_graph = nullptr;
+	solution_communication_graph = nullptr;
 }
 
-Solution::Solution(const int& vertex_number, const bool& put_all_vertices_to)
+Solution::Solution(const int& vertex_number, NeighborGraph const * captation_graph, NeighborGraph const * communication_graph)
 {
-	solution_vect = std::vector<bool>(vertex_number, put_all_vertices_to);
-	if (put_all_vertices_to)
-	{
-		solution_value = vertex_number;
-	}
-	else
-	{
-		solution_value = 0;
-	}
+	solution_set = unordered_set<int>();
+	graph_vertex_number = vertex_number;
+	solution_captation_graph = captation_graph;
+	solution_communication_graph = communication_graph;
 }
 
 Solution::~Solution()
 {
 }
 
-std::vector<bool> const & Solution::get_solution_vect() const
+unordered_set<int> const & Solution::get_solution_set() const
 {
-	return solution_vect;
+	return solution_set;
 }
 
-int Solution::get_solution_value() const
+int Solution::get_solution_value(const bool& verbose) const
 {
-	return solution_value;
+	bool domination_check = solution_captation_graph->CheckSolutionDomination(*this);
+	bool connexity_check = solution_communication_graph->CheckSolutionConnexity(*this);
+	cout << domination_check << " " << connexity_check << endl;
+	return solution_value + !(domination_check && connexity_check) * 400;
+}
+
+int Solution::get_solution_size() const
+{
+	return solution_set.size();
 }
 
 bool Solution::IsVertexInSolution(int const & vertex_idx) const
 {
-	return solution_vect[vertex_idx];
+	return (solution_set.count(vertex_idx) == 1);
 }
 
 void Solution::AddVertexToTheSolution(const int & vertex_idx)
 {
-	// Modify only if the vertex is not included yet
-	if (not solution_vect[vertex_idx])
-	{
-		solution_vect[vertex_idx] = true;
-		solution_value++;
-	}
-	
+	solution_set.insert(vertex_idx);
+	solution_value++;
 }
 
-void Solution::AddVerticesToTheSolution(const std::vector<int>& vertex_indices)
+void Solution::AddVerticesToTheSolution(const vector<int>& vertex_indices)
 {
-	std::vector<int>::const_iterator it = vertex_indices.begin();
+	vector<int>::const_iterator it = vertex_indices.begin();
 	for (; it != vertex_indices.end(); it++)
 	{
-		if (not solution_vect[*it])
-		{
-			solution_vect[*it] = true;
-			solution_value++;
-		}
+		solution_set.insert(*it);
+		solution_value++;
 	}
 }
 
+bool Solution::SwapVertices(const int& leaving_idx, const int& incoming_idx)
+{
+	// Removes the vertex of index leaving_idx from the solution and adds incoming_idx
+	// Returns false if incoming_idx as already in the solution
+	solution_set.erase(leaving_idx);
+	// Insertion attempt
+	// The boolean tells if the incoming vertex was already counted or not
+	bool incoming_vertex_not_in_solution_before = solution_set.insert(incoming_idx).second;
+	if (not incoming_vertex_not_in_solution_before)
+	{
+		solution_value--;
+	}
+	return incoming_vertex_not_in_solution_before;
+}

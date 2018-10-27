@@ -1,16 +1,16 @@
 #include "Heuristics.h"
 
-Solution NaiveHeuristic(NeighborGraph captation_graph, const NeighborGraph& communication_graph)
+Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
 {
-	std::vector<int> solution_vertices_vector;
-	std::set<int> covered_vertices_set;
-	std::vector<std::vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
+	vector<int> solution_vertices_vector;
+	set<int> covered_vertices_set;
+	vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
 	// Vector keeping in memory the vertices it can cover if added to the solution
-	std::vector<std::unordered_set<int> > covering_potential_vector(captation_edges_vector.size());
+	vector<unordered_set<int> > covering_potential_vector(captation_edges_vector.size());
 	for (int vertex_idx = 0; vertex_idx < covering_potential_vector.size(); vertex_idx++)
 	{
-		covering_potential_vector[vertex_idx] = std::unordered_set<int>(captation_edges_vector[vertex_idx].begin(),	captation_edges_vector[vertex_idx].end());
-		//std::copy(v.begin(), v.end(), std::inserter(s, s.end()));
+		covering_potential_vector[vertex_idx] = unordered_set<int>(captation_edges_vector[vertex_idx].begin(),
+																		captation_edges_vector[vertex_idx].end());
 	}
 	// First iteration
 	int highest_potential_vertex_idx = 0;
@@ -26,9 +26,9 @@ Solution NaiveHeuristic(NeighborGraph captation_graph, const NeighborGraph& comm
 		}
 	}
 	solution_vertices_vector.push_back(highest_potential_vertex_idx);
-	std::vector<int> neighbors_idx_vector = captation_edges_vector.at(highest_potential_vertex_idx);
+	vector<int> const & neighbors_idx_vector = captation_edges_vector.at(highest_potential_vertex_idx);
 	covered_vertices_set.insert(highest_potential_vertex_idx);
-	for (std::vector<int>::iterator neighbors_idx_vector_it = neighbors_idx_vector.begin(); neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)
+	for (vector<int>::const_iterator neighbors_idx_vector_it = neighbors_idx_vector.begin(); neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)
 	{
 		covered_vertices_set.insert(*neighbors_idx_vector_it);
 		for (auto neighbors_of_neighbor_it : captation_edges_vector[*neighbors_idx_vector_it])
@@ -40,17 +40,16 @@ Solution NaiveHeuristic(NeighborGraph captation_graph, const NeighborGraph& comm
 	// Iterations after the first one
 	while (covered_vertices_set.size() < communication_graph.get_vertices_number())
 	{
-		std::set<int> neighbors_set;
-		//std::cout << "getting neighbors : " << solution_vertices_set.size() << std::endl;
-		neighbors_set = communication_graph.GetNeighbors(solution_vertices_vector);
-		//std::cout << "Number of neighbors of the solution set : " << neighbors_set.size() << std::endl;
-		//for (std::set<int>::iterator it = neighbors_set.begin(); it != neighbors_set.end(); it++)
+		set<int> const & neighbors_set = communication_graph.GetNeighbors(solution_vertices_vector);;
+		//cout << "getting neighbors : " << solution_vertices_set.size() << endl;
+		//cout << "Number of neighbors of the solution set : " << neighbors_set.size() << endl;
+		//for (set<int>::iterator it = neighbors_set.begin(); it != neighbors_set.end(); it++)
 		//{
-		//	std::cout << *it << "  ";
+		//	cout << *it << "  ";
 		//}
-		//std::cout << std::endl;
+		//cout << endl;
 		// Going through the neighbors to see which vertex has the highest number of not covered neighbors
-		std::set<int>::iterator neighbors_set_it = neighbors_set.begin();
+		set<int>::iterator neighbors_set_it = neighbors_set.begin();
 		highest_potential_vertex_idx = 0;
 		highest_potential = -1;
 		current_potential = -1;
@@ -63,17 +62,18 @@ Solution NaiveHeuristic(NeighborGraph captation_graph, const NeighborGraph& comm
 				highest_potential = current_potential;
 				highest_potential_vertex_idx = *neighbors_set_it;
 			}
-			//std::cout << "Exploring vertex : " << *neighbors_set_it << std::endl;
+			//cout << "Exploring vertex : " << *neighbors_set_it << endl;
 		}
-		//std::cout << std::endl;
-		//std::cout << "highest degree vertex : " << highest_potential_vertex_idx << "   added vertices : " << highest_potential << std::endl;
+		//cout << endl;
+		//cout << "highest degree vertex : " << highest_potential_vertex_idx << "   added vertices : " << highest_potential << endl;
 		solution_vertices_vector.push_back(highest_potential_vertex_idx);
-		std::vector<int> neighbors_idx_vector = captation_edges_vector.at(highest_potential_vertex_idx);
+		vector<int> const & neighbors_idx_vector = captation_edges_vector.at(highest_potential_vertex_idx);
 		covered_vertices_set.insert(highest_potential_vertex_idx);
-		//std::cout << "Covered vertices and : " << neighbors_idx_vector.size() << std::endl;
-		for (std::vector<int>::iterator neighbors_idx_vector_it = neighbors_idx_vector.begin(); neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)
+		//cout << "Covered vertices and : " << neighbors_idx_vector.size() << endl;
+		vector<int>::const_iterator neighbors_idx_vector_it = neighbors_idx_vector.begin();
+		for (; neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)
 		{
-			//std::cout << "   " << *neighbors_idx_vector_it;
+			//cout << "   " << *neighbors_idx_vector_it;
 			covered_vertices_set.insert(*neighbors_idx_vector_it);
 			for (auto neighbors_of_neighbor_it : captation_edges_vector[*neighbors_idx_vector_it])
 			{
@@ -81,17 +81,17 @@ Solution NaiveHeuristic(NeighborGraph captation_graph, const NeighborGraph& comm
 			}
 			covering_potential_vector[*neighbors_idx_vector_it].erase(highest_potential_vertex_idx);
 		}
-		//std::cout << std::endl;
+		//cout << endl;
 	}
 
-	Solution heuristic_solution(communication_graph.get_vertices_number(), false);
-	std::vector<int>::iterator solution_vertices_vector_it = solution_vertices_vector.begin();
+	Solution heuristic_solution(communication_graph.get_vertices_number(), &captation_graph, &communication_graph);
+	vector<int>::iterator solution_vertices_vector_it = solution_vertices_vector.begin();
 	for (; solution_vertices_vector_it != solution_vertices_vector.end(); solution_vertices_vector_it++)
 	{
-		std::cout << " | " << *solution_vertices_vector_it;
+		cout << " | " << *solution_vertices_vector_it;
 		heuristic_solution.AddVertexToTheSolution(*solution_vertices_vector_it);
 	}
-	std::cout << std::endl;
+	cout << endl;
 
 	return heuristic_solution;
 }
