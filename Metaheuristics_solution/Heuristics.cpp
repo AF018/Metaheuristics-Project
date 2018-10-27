@@ -95,3 +95,15 @@ Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGrap
 
 	return heuristic_solution;
 }
+
+void ReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
+{
+	std::vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
+	while (current_solution.get_non_dominated_vertices_set().size() != 0)
+	{
+		int non_covered_idx = *(current_solution.get_non_dominated_vertices_set().begin());
+		std::vector<int> const & neighbors_vector = captation_edges_vector[non_covered_idx];
+		int vertex_to_add_idx = neighbors_vector[rand()%neighbors_vector.size()];
+		current_solution.AddVertexToTheSolution(vertex_to_add_idx);
+	}
+}
