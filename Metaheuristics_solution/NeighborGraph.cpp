@@ -149,28 +149,30 @@ vector<int> const & NeighborGraph::GetNeighbors(int const & vertex_index) const
 
 bool NeighborGraph::CheckSolutionDomination(const Solution& solution, const bool& verbose) const
 {
-	// Change to be in accordance with the solution structure
-	vector<int> solution_vertex_vector;
-	for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
-	{
-		if (solution.IsVertexInSolution(vertex_idx))
-		{
-			solution_vertex_vector.push_back(vertex_idx);
-		}
-	}
-	set<int> neighbors_vector = GetNeighbors(solution_vertex_vector);
+	//// Change to be in accordance with the solution structure
+	//vector<int> solution_vertex_vector;
+	//for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
+	//{
+	//	if (solution.IsVertexInSolution(vertex_idx))
+	//	{
+	//		solution_vertex_vector.push_back(vertex_idx);
+	//	}
+	//}
+	//set<int> neighbors_vector = GetNeighbors(solution_vertex_vector);
 
-	// Merging the two sets to get the set of covered vertices
-	// The two vectors are already sorted
-	set<int> union_vector;
-	std::merge(solution_vertex_vector.begin(), solution_vertex_vector.end(),
-		neighbors_vector.begin(), neighbors_vector.end(),
-		std::inserter(union_vector, union_vector.begin()));
-	int covered_vertices_number = union_vector.size();
+	//// Merging the two sets to get the set of covered vertices
+	//// The two vectors are already sorted
+	//set<int> union_vector;
+	//std::merge(solution_vertex_vector.begin(), solution_vertex_vector.end(),
+	//	neighbors_vector.begin(), neighbors_vector.end(),
+	//	std::inserter(union_vector, union_vector.begin()));
+	//int covered_vertices_number = union_vector.size();
 
-	if (verbose)
-	{
-		cout << "covered_vertices : " << covered_vertices_number << "/" << vertices_number << endl;
-	}
-	return (covered_vertices_number == vertices_number);
+	//if (verbose)
+	//{
+	//	cout << "covered_vertices : " << covered_vertices_number << "/" << vertices_number << endl;
+	//}
+	//return (covered_vertices_number == vertices_number);
+
+	return (solution.get_non_dominated_vertices_set().size() == 0);
 }
