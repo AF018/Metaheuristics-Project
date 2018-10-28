@@ -38,7 +38,7 @@ int main()
 	
 	std::cout << "Runnning the naive heuristic" << std::endl;
 	start = std::clock();
-	Solution naive_solution = NaiveHeuristic(captation_graph, communication_graph);
+	Solution naive_solution = NaiveRandomHeuristic(captation_graph, communication_graph);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	std::cout << "Duration : " << duration << " seconds \n";
 	std::cout << "Score : " << naive_solution.get_solution_value() << " used targets \n";
@@ -52,13 +52,13 @@ int main()
 	std::cout << "Duration : " << duration << " seconds \n";
 	std::cout << std::endl;
 
-	std::cout << "Runnning the tabu search" << std::endl;
-	start = std::clock();
-	TabuSearch(naive_solution, captation_graph, communication_graph);
-	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	std::cout << "Duration : " << duration << " seconds \n";
-	//std::cout << "Score : " << naive_solution.get_solution_value() << " used targets \n";
-	std::cout << std::endl;
+	//std::cout << "Runnning the tabu search" << std::endl;
+	//start = std::clock();
+	//TabuSearch(naive_solution, captation_graph, communication_graph);
+	//duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+	//std::cout << "Duration : " << duration << " seconds \n";
+	////std::cout << "Score : " << naive_solution.get_solution_value() << " used targets \n";
+	//std::cout << std::endl;
 
 	return 0;
 }

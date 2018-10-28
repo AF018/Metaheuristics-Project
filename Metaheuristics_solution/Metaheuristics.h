@@ -1,9 +1,5 @@
 #pragma once
 
-#include <stdio.h>      /* NULL */
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>		/* time */
-
 #include "Heuristics.h"
 
 using namespace std;
