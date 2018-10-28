@@ -123,3 +123,14 @@ bool Solution::SwapVertices(const int& leaving_idx, const int& incoming_idx)
 	bool incoming_vertex_not_already_in_solution = AddVertexToTheSolution(incoming_idx);
 	return incoming_vertex_not_already_in_solution;
 }
+
+void Solution::Write(const string& file_name)
+{
+	std::ofstream file(file_name.c_str());
+
+	for (auto it = solution_set.begin(); it != solution_set.end(); ++it) {
+		file << *it << " ";
+	}
+	file << std::endl;
+
+}

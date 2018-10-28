@@ -35,5 +35,6 @@ public:
 	// Operation for the metaheuristics, swaps two vertices
 	// Returns true if the incoming vertex was not yet included in the solution
 	bool SwapVertices(const int& leaving_idx, const int& incoming_idx);
+	void Write(const string& file_name);
 };
 
