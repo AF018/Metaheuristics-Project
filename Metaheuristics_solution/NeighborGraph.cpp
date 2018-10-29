@@ -26,7 +26,6 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 	// Creating the edges
 	for (it_i = target_vect.begin(); it_i < target_vect.end(); it_i++)
 	{
-		edges_vector.push_back(vector<int>());
 		for (it_j = std::next(it_i); it_j < target_vect.end(); it_j++)
 		{
 			// Computing the distance between i and j
@@ -41,6 +40,7 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 			}
 		}
 	}
+	cout << edges_vector.size() << endl;
 	cout << "vertex number : " << vertices_number << endl;
 	cout << "edge number : " << edge_number << endl;
 }

@@ -2,8 +2,8 @@
 
 Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
 {
-	//srand(0);
-	srand(time(NULL));
+	srand(0);
+	//srand(time(NULL));
 
 	vector<int> solution_vertices_vector;
 	set<int> covered_vertices_set;

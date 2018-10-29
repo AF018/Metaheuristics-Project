@@ -23,6 +23,7 @@ public:
 	// Default destructor
 	virtual ~Solution();
 	unordered_set<int> const & get_solution_set() const;
+	vector<vector<int> > const & get_dominating_neighbors_vector() const;
 	unordered_set<int> const & get_non_dominated_vertices_set() const;
 	int get_solution_value() const;
 	void get_solution_value(int & solution_value, bool & domination_condition, bool & connexity_condition) const;

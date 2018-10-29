@@ -14,8 +14,6 @@ class TargetNet
 {
 	// The index vector for a given target might be different from the target index
 	vector<Target> target_vect;
-	// Maps each target index to its index in the input file
-	map<int, int> target_idx_map;
 public:
 	// Default constructor
 	TargetNet();

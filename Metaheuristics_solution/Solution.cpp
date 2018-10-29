@@ -33,6 +33,11 @@ unordered_set<int> const & Solution::get_solution_set() const
 	return solution_set;
 }
 
+vector<vector<int> > const & Solution::get_dominating_neighbors_vector() const
+{
+	return dominating_neighbors_vector;
+}
+
 unordered_set<int> const & Solution::get_non_dominated_vertices_set() const
 {
 	return non_dominated_vertices_set;
