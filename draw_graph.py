@@ -53,10 +53,17 @@ ln_coll = matplotlib.collections.LineCollection(segs, colors=(0.8,0.8,0.3))
 ax.add_collection(ln_coll)
 
 
-## display the captation radius on vertices from solution
+## display the captation radius on vertices from solution, and the edges in the communication constituting the connexity
 for vertex in solution:
     vertex_coords=coords[vertex]
-    ax.add_artist(plt.Circle(vertex_coords,args.rcom,color=(0,0.2,0.5,0.2)))
+    ax.add_artist(plt.Circle(vertex_coords,args.rcapt,color=(0,0.2,0.5,0.2)))
+    for neighbor_vertex in solution:
+        neighbor_coords = coords[neighbor_vertex]
+        x=vertex_coords[0] - neighbor_coords[0]
+        y=vertex_coords[1] - neighbor_coords[1]
+        if x*x+y*y <= args.rcom**2:
+            plt.plot([vertex_coords[0], neighbor_coords[0]], [vertex_coords[1], neighbor_coords[1]], 'r-')
+
 plt.plot(coords[:,0],coords[:,1],"o",color=(0.2,0.2,0.2))
 
 
