@@ -3,15 +3,12 @@
 
 void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
 {
-	int iteration_amount = 15;
+	int iteration_amount = 2;
 
 	srand(0);
 	//srand(time(NULL));
 
 	vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
-	int best_neighboring_solution_idx = -1;
-	int best_neighboring_solution_value = 0;
-	int neighboring_solution_value = 0;
 	// Variables to keep in memory the best solution encountered
 	Solution best_solution = current_solution;
 	int best_solution_value = current_solution.get_solution_value();
@@ -22,9 +19,6 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 		int random_vertex_idx = rand() % captation_edges_vector.size();
 		cout << "random index : " << random_vertex_idx << " current value : " << current_solution.get_solution_value() << endl;
 
-		// Initializing the best neighboring solution value to an upper bound
-		best_neighboring_solution_value = UPPER_BOUND_VALUE;
-		best_neighboring_solution_idx = -1;
 		// Removing all the vertices that dominate random_vertex_idx, which may include itself
 		vector<int> dominating_vertices_vector = current_solution.get_dominating_neighbors_vector()[random_vertex_idx];
 		for (auto dominating_vertex_it : dominating_vertices_vector)
@@ -36,11 +30,26 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 		//cout << "formation ensemble des sommets potentiels" << endl;
 		unordered_set<int> const & non_dominated_vertices_set = current_solution.get_non_dominated_vertices_set();
 		unordered_set<int> const & solution_set = current_solution.get_solution_set();
-		// Container including the non dominated vertices, which also have neighbor(s) included in the current solution
+		// Container including the vertices neighbors of non dominated vertex(ices) in the communication graph
+		// and which also have neighbor(s) in the communication graph included in the current solution
 		unordered_set<int> potential_solution_vertices_set = unordered_set<int>();
 		for (auto non_dominated_vertex : non_dominated_vertices_set)
 		{
-			cout << non_dominated_vertex << endl;
+			for (auto potential_vertex : captation_edges_vector[non_dominated_vertex])
+			{
+				bool has_a_solution_neighbor = false;
+				for (auto non_dominated_vertex_neighbor : communication_graph.get_edges_vector()[potential_vertex])
+				{
+					if (solution_set.count(non_dominated_vertex_neighbor) == 1)
+					{
+						has_a_solution_neighbor = true;
+					}
+				}
+				if (has_a_solution_neighbor)
+				{
+					potential_solution_vertices_set.insert(potential_vertex);
+				}
+			}
 			// For each non dominated_vertex, see if it has a neighbor (in the communication graph) that
 			// is included in the solution
 			bool has_a_solution_neighbor = false;
@@ -57,18 +66,29 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 				potential_solution_vertices_set.insert(non_dominated_vertex);
 			}
 		}
-		//cout << "Calcul potentiel de chaque sommet" << endl;
 		// Computing how many vertices each non dominated vertex can dominate
 		unordered_map<int, vector<int> > covering_potential_map = unordered_map<int, vector<int> >();
-		for (auto potential_solution_vertex : non_dominated_vertices_set)
+		for (auto non_dominated_vertex : non_dominated_vertices_set)
 		{
-			cout << potential_solution_vertex << endl;
-			covering_potential_map[potential_solution_vertex] = vector<int>();
-			for (auto potential_solution_neighbor : captation_edges_vector[potential_solution_vertex])
+			cout << "non dominated : " << non_dominated_vertex << endl;
+			covering_potential_map[non_dominated_vertex] = vector<int>();
+			covering_potential_map[non_dominated_vertex].push_back(non_dominated_vertex);
+			for (auto non_dominated_vertex_neighbor : captation_edges_vector[non_dominated_vertex])
 			{
-				if (non_dominated_vertices_set.count(potential_solution_neighbor) == 1)
+				if (non_dominated_vertices_set.count(non_dominated_vertex_neighbor) == 1)
 				{
-					covering_potential_map[potential_solution_vertex].push_back(potential_solution_neighbor);
+					// Adding to the covering potential of non_dominated_vertex if the vertex is not dominated
+					covering_potential_map[non_dominated_vertex].push_back(non_dominated_vertex_neighbor);
+				}
+				else
+				{
+					// Else adding to the covering potential map of the dominated neighbor
+					// This way all the covering potentials of the dominated vertices are filled at the end
+					if (covering_potential_map.find(non_dominated_vertex_neighbor) == covering_potential_map.end())
+					{
+						covering_potential_map[non_dominated_vertex_neighbor] = vector<int>();
+					}
+					covering_potential_map[non_dominated_vertex_neighbor].push_back(non_dominated_vertex);
 				}
 			}
 		}
@@ -77,14 +97,8 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 		vector<int> potential_new_solution_vector;
 		// Vector including all the selected vertices for the solution
 		vector<int> selected_vertices;
-		//cout << "entree dans le while" << endl;
-		if (non_dominated_vertices_set.size() == 0)
-		{
-			cout << "NO LOOP" << endl;
-		}
 		while (non_dominated_vertices_set.size() > 0)
 		{
-			cout << "STILL GOING ON" << endl;
 			highest_covering_potential = 0;
 			potential_new_solution_vector = vector<int>();
 			for (auto potential_solution_idx : potential_solution_vertices_set)
@@ -102,35 +116,21 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 				}
 			}
 
-			//cout << "Selection sommet aleatoire gagnant" << endl;
 			int random_idx = rand() % potential_new_solution_vector.size();
 			int added_vertex_idx = potential_new_solution_vector[random_idx];
 			selected_vertices.push_back(added_vertex_idx);
 
-			cout << "added_vertex_idx : " << added_vertex_idx << endl;
+			cout << "added_vertex_idx : " << added_vertex_idx << " potential " << highest_covering_potential << endl;
 
-			//cout << "Adding the new solution vertex to the solution" << endl;
-			// Adding the new solution vertex to the solution
-			current_solution.AddVertexToTheSolution(added_vertex_idx);
-			potential_solution_vertices_set.erase(added_vertex_idx);
-			for (auto added_vertex_neighbor : communication_graph.get_edges_vector()[added_vertex_idx])
-			{
-				if (non_dominated_vertices_set.count(added_vertex_neighbor) == 1)
-				{
-					potential_solution_vertices_set.insert(added_vertex_neighbor);
-				}
-			}
-
-			//cout << "Removing the added vertex and its neighbors in the covering potential map" << endl;
 			// Removing the added vertex and its neighbors in the covering potential map
 			for (auto added_vertex_neighbor : captation_edges_vector[added_vertex_idx])
 			{
-				//cout << "neighbor : " << added_vertex_neighbor << " size : " << captation_edges_vector[added_vertex_neighbor].size() << endl;
+				// Removing the neighbor vertex from the containers keeping in memory the potential cover of each vertex
+				// if this neighbor vertex was a non dominated one
 				if (non_dominated_vertices_set.count(added_vertex_neighbor) == 1)
 				{
 					for (auto neighbor_of_neighbor : captation_edges_vector[added_vertex_neighbor])
 					{
-						//cout << "neighbor of neighbor : " << neighbor_of_neighbor << endl;
 						// Checking if the vertex is non dominated
 						unordered_map<int, vector<int> >::iterator neighbor_of_neighbor_it = covering_potential_map.find(neighbor_of_neighbor);
 						if (neighbor_of_neighbor_it != covering_potential_map.end())
@@ -139,22 +139,54 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 								neighbor_of_neighbor_it->second.end(),
 								added_vertex_neighbor);
 							neighbor_of_neighbor_it->second.erase(vertex_to_delete_it);
+							if (neighbor_of_neighbor_it->second.size() == 0)
+							{
+								potential_solution_vertices_set.erase(neighbor_of_neighbor_it->first);
+								covering_potential_map.erase(neighbor_of_neighbor_it);
+							}
 						}
 					}
 				}
-				unordered_map<int, vector<int> >::iterator neighbor_it = covering_potential_map.find(added_vertex_neighbor);
-				if (neighbor_it != covering_potential_map.end())
+				if (non_dominated_vertices_set.count(added_vertex_idx) == 1)
 				{
-					vector<int>::iterator vertex_to_delete_it = find(neighbor_it->second.begin(), neighbor_it->second.end(), added_vertex_idx);
-					neighbor_it->second.erase(vertex_to_delete_it);
+					unordered_map<int, vector<int> >::iterator neighbor_it = covering_potential_map.find(added_vertex_neighbor);
+					if (neighbor_it != covering_potential_map.end())
+					{
+						vector<int>::iterator vertex_to_delete_it = find(neighbor_it->second.begin(),
+							neighbor_it->second.end(),
+							added_vertex_idx);
+						neighbor_it->second.erase(vertex_to_delete_it);
+
+						// If the neighbor cannot dominate any vertex if added, it is erased
+						if (neighbor_it->second.size() == 0)
+						{
+							potential_solution_vertices_set.erase(neighbor_it->first);
+							covering_potential_map.erase(neighbor_it);
+						}
+					}
+				}
+			}
+
+			// Adding the new solution vertex to the solution
+			current_solution.AddVertexToTheSolution(added_vertex_idx);
+			potential_solution_vertices_set.erase(added_vertex_idx);
+			for (auto added_vertex_neighbor : communication_graph.get_edges_vector()[added_vertex_idx])
+			{
+				// Add the neighbors of the added vertex if they can dominate at least one non dominated vertex
+				unordered_map<int, vector<int> >::iterator added_vertex_neighbor_it = covering_potential_map.find(added_vertex_neighbor);
+				if (added_vertex_neighbor_it != covering_potential_map.end()
+					&& added_vertex_neighbor_it->second.size() != 0)
+				{
+					potential_solution_vertices_set.insert(added_vertex_neighbor);
 				}
 			}
 		}
 		cout << "one iteration over" << endl;
+		int current_value = current_solution.get_solution_value();
 		if (best_solution_value > current_solution.get_solution_value())
 		{
 			best_solution = current_solution;
-			best_solution_value = best_neighboring_solution_value;
+			best_solution_value = current_value;
 		}
 	}
 	cout << "Final Tabu value : " << current_solution.get_solution_value() << endl;
