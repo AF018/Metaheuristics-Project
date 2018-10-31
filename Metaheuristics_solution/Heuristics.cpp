@@ -212,7 +212,7 @@ Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGrap
 	return heuristic_solution;
 }
 
-void ReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
+void DominationReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
 {
 	std::vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
 	while (current_solution.get_non_dominated_vertices_set().size() != 0)
@@ -222,4 +222,9 @@ void ReconstructionHeuristic(Solution& current_solution, const NeighborGraph& ca
 		int vertex_to_add_idx = neighbors_vector[rand()%neighbors_vector.size()];
 		current_solution.AddVertexToTheSolution(vertex_to_add_idx);
 	}
+}
+
+void ConnexityReconstructionHeuristic(Solution & current_solution, const NeighborGraph & captation_graph, const NeighborGraph & communication_graph)
+{
+
 }

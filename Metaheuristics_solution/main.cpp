@@ -11,7 +11,7 @@ int main()
 	//std::string file_path(project_dir_path + "Instances/test_2.dat");
 
 	double captation_radius = 1.0;
-	double communication_radius = 1.0;
+	double communication_radius = 2.0;
 
 	std::clock_t start;
 	double duration;

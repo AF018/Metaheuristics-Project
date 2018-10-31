@@ -1,9 +1,47 @@
 
 #include "Metaheuristics.h"
 
+void CheckAndAddToPotentialSolutions(const int & potential_vertex_idx, unordered_set<int>& potential_solution_vertices_set,
+	const NeighborGraph & communication_graph, unordered_set<int> const & solution_set)
+{
+	bool has_a_solution_neighbor = false;
+	vector<int>::const_iterator potential_vertex_neighbor_it = communication_graph.get_edges_vector()[potential_vertex_idx].begin();
+	// Looks at all neighbors and stops when finding one that is included in the solution
+	for (; (not has_a_solution_neighbor) && potential_vertex_neighbor_it != communication_graph.get_edges_vector()[potential_vertex_idx].end(); potential_vertex_neighbor_it++)
+	{
+		if (solution_set.count(*potential_vertex_neighbor_it) == 1)
+		{
+			has_a_solution_neighbor = true;
+		}
+	}
+	if (has_a_solution_neighbor)
+	{
+		potential_solution_vertices_set.insert(potential_vertex_idx);
+	}
+}
+
+void RemoveVertexFromNeighborPotentialCovering(const int & vertex_idx, const int & vertex_to_delete_idx, 
+	unordered_map<int, vector<int> >& covering_potential_map, unordered_set<int>& potential_solution_vertices_set)
+{
+	// Finding the vertex to delete in the vertices that the vertex_idx could have dominated
+	unordered_map<int, vector<int> >::iterator covering_potential_it = covering_potential_map.find(vertex_idx);
+	if (covering_potential_it != covering_potential_map.end())
+	{
+		vector<int>::iterator vertex_to_delete_it = find(covering_potential_it->second.begin(),
+			covering_potential_it->second.end(),
+			vertex_to_delete_idx);
+		covering_potential_it->second.erase(vertex_to_delete_it);
+		if (covering_potential_it->second.size() == 0)
+		{
+			covering_potential_map.erase(covering_potential_it);
+			potential_solution_vertices_set.erase(vertex_idx);
+		}
+	}
+}
+
 void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
 {
-	int iteration_amount = 2;
+	int iteration_amount = 500;
 
 	srand(0);
 	//srand(time(NULL));
@@ -15,7 +53,6 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 
 	for (int iteration_counter = 0; iteration_counter < iteration_amount; iteration_counter++)
 	{
-		//cout << "size captation edeges vector : " << captation_edges_vector.size() << endl;
 		int random_vertex_idx = rand() % captation_edges_vector.size();
 		cout << "random index : " << random_vertex_idx << " current value : " << current_solution.get_solution_value() << endl;
 
@@ -27,44 +64,19 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 			cout << "removing : " << dominating_vertex_it << " size : " << current_solution.get_solution_size() << endl;
 		}
 		
-		//cout << "formation ensemble des sommets potentiels" << endl;
 		unordered_set<int> const & non_dominated_vertices_set = current_solution.get_non_dominated_vertices_set();
 		unordered_set<int> const & solution_set = current_solution.get_solution_set();
 		// Container including the vertices neighbors of non dominated vertex(ices) in the communication graph
 		// and which also have neighbor(s) in the communication graph included in the current solution
 		unordered_set<int> potential_solution_vertices_set = unordered_set<int>();
+
 		for (auto non_dominated_vertex : non_dominated_vertices_set)
 		{
 			for (auto potential_vertex : captation_edges_vector[non_dominated_vertex])
 			{
-				bool has_a_solution_neighbor = false;
-				for (auto non_dominated_vertex_neighbor : communication_graph.get_edges_vector()[potential_vertex])
-				{
-					if (solution_set.count(non_dominated_vertex_neighbor) == 1)
-					{
-						has_a_solution_neighbor = true;
-					}
-				}
-				if (has_a_solution_neighbor)
-				{
-					potential_solution_vertices_set.insert(potential_vertex);
-				}
+				CheckAndAddToPotentialSolutions(potential_vertex, potential_solution_vertices_set, communication_graph, solution_set);
 			}
-			// For each non dominated_vertex, see if it has a neighbor (in the communication graph) that
-			// is included in the solution
-			bool has_a_solution_neighbor = false;
-			for (auto non_dominated_vertex_neighbor : communication_graph.get_edges_vector()[non_dominated_vertex])
-			{
-				if (solution_set.count(non_dominated_vertex_neighbor) == 1)
-				{
-					has_a_solution_neighbor = true;
-				}
-			}
-			if (has_a_solution_neighbor)
-			{
-				cout << non_dominated_vertex << endl;
-				potential_solution_vertices_set.insert(non_dominated_vertex);
-			}
+			CheckAndAddToPotentialSolutions(non_dominated_vertex, potential_solution_vertices_set, communication_graph, solution_set);
 		}
 		// Computing how many vertices each non dominated vertex can dominate
 		unordered_map<int, vector<int> > covering_potential_map = unordered_map<int, vector<int> >();
@@ -125,51 +137,30 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 			// Removing the added vertex and its neighbors in the covering potential map
 			for (auto added_vertex_neighbor : captation_edges_vector[added_vertex_idx])
 			{
-				// Removing the neighbor vertex from the containers keeping in memory the potential cover of each vertex
-				// if this neighbor vertex was a non dominated one
+				// The following removals are only valid if the added_vertex_neighbor was not dominated
 				if (non_dominated_vertices_set.count(added_vertex_neighbor) == 1)
 				{
 					for (auto neighbor_of_neighbor : captation_edges_vector[added_vertex_neighbor])
 					{
-						// Checking if the vertex is non dominated
-						unordered_map<int, vector<int> >::iterator neighbor_of_neighbor_it = covering_potential_map.find(neighbor_of_neighbor);
-						if (neighbor_of_neighbor_it != covering_potential_map.end())
-						{
-							vector<int>::iterator vertex_to_delete_it = find(neighbor_of_neighbor_it->second.begin(),
-								neighbor_of_neighbor_it->second.end(),
-								added_vertex_neighbor);
-							neighbor_of_neighbor_it->second.erase(vertex_to_delete_it);
-							if (neighbor_of_neighbor_it->second.size() == 0)
-							{
-								potential_solution_vertices_set.erase(neighbor_of_neighbor_it->first);
-								covering_potential_map.erase(neighbor_of_neighbor_it);
-							}
-						}
+						// Removing the added_vertex_neighbor from the covering potential vector of its neighbors
+						RemoveVertexFromNeighborPotentialCovering(neighbor_of_neighbor, added_vertex_neighbor,
+							covering_potential_map, potential_solution_vertices_set);
 					}
+					// Removing the added_vertex_neighbor from its own covering potential vector
+					RemoveVertexFromNeighborPotentialCovering(added_vertex_neighbor, added_vertex_neighbor,
+						covering_potential_map, potential_solution_vertices_set);
 				}
 				if (non_dominated_vertices_set.count(added_vertex_idx) == 1)
 				{
-					unordered_map<int, vector<int> >::iterator neighbor_it = covering_potential_map.find(added_vertex_neighbor);
-					if (neighbor_it != covering_potential_map.end())
-					{
-						vector<int>::iterator vertex_to_delete_it = find(neighbor_it->second.begin(),
-							neighbor_it->second.end(),
-							added_vertex_idx);
-						neighbor_it->second.erase(vertex_to_delete_it);
-
-						// If the neighbor cannot dominate any vertex if added, it is erased
-						if (neighbor_it->second.size() == 0)
-						{
-							potential_solution_vertices_set.erase(neighbor_it->first);
-							covering_potential_map.erase(neighbor_it);
-						}
-					}
+					// Removing the added_vertex_idx from its neighbor covering potential vector if it was not dominated
+					RemoveVertexFromNeighborPotentialCovering(added_vertex_neighbor, added_vertex_idx,
+						covering_potential_map, potential_solution_vertices_set);
 				}
 			}
 
 			// Adding the new solution vertex to the solution
 			current_solution.AddVertexToTheSolution(added_vertex_idx);
-			potential_solution_vertices_set.erase(added_vertex_idx);
+			// The added_vertex_idx was already removed from the potential_solution_vertices_set when exploring the neighbors of neighbors
 			for (auto added_vertex_neighbor : communication_graph.get_edges_vector()[added_vertex_idx])
 			{
 				// Add the neighbors of the added vertex if they can dominate at least one non dominated vertex
