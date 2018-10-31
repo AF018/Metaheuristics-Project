@@ -57,12 +57,12 @@ int main()
 
 	std::cout << "Runnning the tabu search" << std::endl;
 	start = std::clock();
-	TabuSearch(naive_solution, captation_graph, communication_graph);
+	SimulatedAnnealingSearch(naive_solution, captation_graph, communication_graph);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	std::cout << "Duration : " << duration << " seconds \n";
-	//std::cout << "Score : " << naive_solution.get_solution_value() << " used targets \n";
 	std::cout << std::endl;
 
+	std::cout << "Local search score : " << naive_solution.get_solution_value() << " used targets \n";
 	naive_solution.Write(project_dir_path + "Results/local_search_solution.dat");
 
 	return 0;

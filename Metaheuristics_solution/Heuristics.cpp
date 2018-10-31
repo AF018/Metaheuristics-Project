@@ -54,13 +54,6 @@ Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const Neighb
 	while (covered_vertices_set.size() < communication_graph.get_vertices_number())
 	{
 		set<int> const & neighbors_set = communication_graph.GetNeighbors(solution_vertices_vector);;
-		//cout << "getting neighbors : " << solution_vertices_set.size() << endl;
-		//cout << "Number of neighbors of the solution set : " << neighbors_set.size() << endl;
-		//for (set<int>::iterator it = neighbors_set.begin(); it != neighbors_set.end(); it++)
-		//{
-		//	cout << *it << "  ";
-		//}
-		//cout << endl;
 		// Going through the neighbors to see which vertex has the highest number of not covered neighbors
 		set<int>::iterator neighbors_set_it = neighbors_set.begin();
 		highest_potential_vertex_vector = vector<int>();
@@ -80,20 +73,15 @@ Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const Neighb
 				highest_potential_vertex_vector = vector<int>();
 				highest_potential_vertex_vector.push_back(*neighbors_set_it);
 			}
-			//cout << "Exploring vertex : " << *neighbors_set_it << endl;
 		}
-		//cout << endl;
-		//cout << "highest degree vertex : " << highest_potential_vertex_idx << "   added vertices : " << highest_potential << endl;
 		random_choice = rand() % highest_potential_vertex_vector.size();
 		random_choice_vertex = highest_potential_vertex_vector[random_choice];
 		solution_vertices_vector.push_back(random_choice_vertex);
 		vector<int> const & neighbors_idx_vector = captation_edges_vector.at(random_choice_vertex);
 		covered_vertices_set.insert(random_choice_vertex);
-		//cout << "Covered vertices and : " << neighbors_idx_vector.size() << endl;
 		vector<int>::const_iterator neighbors_idx_vector_it = neighbors_idx_vector.begin();
 		for (; neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)
 		{
-			//cout << "   " << *neighbors_idx_vector_it;
 			covered_vertices_set.insert(*neighbors_idx_vector_it);
 			for (auto neighbors_of_neighbor_it : captation_edges_vector[*neighbors_idx_vector_it])
 			{
@@ -101,14 +89,13 @@ Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const Neighb
 			}
 			covering_potential_vector[*neighbors_idx_vector_it].erase(random_choice_vertex);
 		}
-		//cout << endl;
 	}
 
 	Solution heuristic_solution(communication_graph.get_vertices_number(), &captation_graph, &communication_graph);
 	vector<int>::iterator solution_vertices_vector_it = solution_vertices_vector.begin();
 	for (; solution_vertices_vector_it != solution_vertices_vector.end(); solution_vertices_vector_it++)
 	{
-		cout << " | " << *solution_vertices_vector_it;
+		cout << *solution_vertices_vector_it << " | ";
 		heuristic_solution.AddVertexToTheSolution(*solution_vertices_vector_it);
 	}
 	cout << endl;
@@ -157,13 +144,6 @@ Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGrap
 	while (covered_vertices_set.size() < communication_graph.get_vertices_number())
 	{
 		set<int> const & neighbors_set = communication_graph.GetNeighbors(solution_vertices_vector);;
-		//cout << "getting neighbors : " << solution_vertices_set.size() << endl;
-		//cout << "Number of neighbors of the solution set : " << neighbors_set.size() << endl;
-		//for (set<int>::iterator it = neighbors_set.begin(); it != neighbors_set.end(); it++)
-		//{
-		//	cout << *it << "  ";
-		//}
-		//cout << endl;
 		// Going through the neighbors to see which vertex has the highest number of not covered neighbors
 		set<int>::iterator neighbors_set_it = neighbors_set.begin();
 		highest_potential_vertex_idx = 0;
@@ -178,18 +158,13 @@ Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGrap
 				highest_potential = current_potential;
 				highest_potential_vertex_idx = *neighbors_set_it;
 			}
-			//cout << "Exploring vertex : " << *neighbors_set_it << endl;
 		}
-		//cout << endl;
-		//cout << "highest degree vertex : " << highest_potential_vertex_idx << "   added vertices : " << highest_potential << endl;
 		solution_vertices_vector.push_back(highest_potential_vertex_idx);
 		vector<int> const & neighbors_idx_vector = captation_edges_vector.at(highest_potential_vertex_idx);
 		covered_vertices_set.insert(highest_potential_vertex_idx);
-		//cout << "Covered vertices and : " << neighbors_idx_vector.size() << endl;
 		vector<int>::const_iterator neighbors_idx_vector_it = neighbors_idx_vector.begin();
 		for (; neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)
 		{
-			//cout << "   " << *neighbors_idx_vector_it;
 			covered_vertices_set.insert(*neighbors_idx_vector_it);
 			for (auto neighbors_of_neighbor_it : captation_edges_vector[*neighbors_idx_vector_it])
 			{
@@ -197,7 +172,6 @@ Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGrap
 			}
 			covering_potential_vector[*neighbors_idx_vector_it].erase(highest_potential_vertex_idx);
 		}
-		//cout << endl;
 	}
 
 	Solution heuristic_solution(communication_graph.get_vertices_number(), &captation_graph, &communication_graph);
@@ -212,7 +186,7 @@ Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGrap
 	return heuristic_solution;
 }
 
-void DominationReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
+void DominationReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph)
 {
 	std::vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
 	while (current_solution.get_non_dominated_vertices_set().size() != 0)
@@ -224,7 +198,95 @@ void DominationReconstructionHeuristic(Solution& current_solution, const Neighbo
 	}
 }
 
-void ConnexityReconstructionHeuristic(Solution & current_solution, const NeighborGraph & captation_graph, const NeighborGraph & communication_graph)
+void ConnexityReconstructionHeuristic(Solution & current_solution, const NeighborGraph & communication_graph)
 {
+	vector<vector<int> > connex_components = communication_graph.ComputeConnexComponents(current_solution);
+	while (connex_components.size() > 1)
+	{
+		int min_size = current_solution.get_solution_size();
+		int min_size_component = -1;
+		for (int component_idx = 0; component_idx != connex_components.size(); component_idx++)
+		{
+			if (connex_components[component_idx].size() < min_size)
+			{
+				min_size = connex_components[component_idx].size();
+				min_size_component = component_idx;
+			}
+		}
+		vector<vector<int> >::iterator min_connex_component_it = std::next(connex_components.begin(), min_size_component);
+		std::random_shuffle(min_connex_component_it->begin(), min_connex_component_it->end());
+		queue<int> bfs_queue;
+		// Container mapping a vertex to its predecessor in the BFS
+		// The elements from the minimal connex component are mapped to themselves
+		unordered_map<int, int> already_visited_map;
+		for (auto component_vertex : *min_connex_component_it)
+		{
+			already_visited_map[component_vertex] = component_vertex;
+			for (auto component_neighbor : communication_graph.get_edges_vector()[component_vertex])
+			{
+				bfs_queue.push(component_neighbor);
+				if (already_visited_map.find(component_neighbor) == already_visited_map.end())
+				{
+					already_visited_map[component_neighbor] = component_vertex;
+				}
+			}
+		}
+		int explored_vertex = -1;
+		// While loop stops when a vertex in the solution and not in the minimal connex component is found
+		do
+		{
+			explored_vertex = bfs_queue.front();
+			bfs_queue.pop();
+			for (auto explored_vertex_neighbor : communication_graph.get_edges_vector()[explored_vertex])
+			{
+				if (already_visited_map.find(explored_vertex_neighbor) == already_visited_map.end())
+				{
+					bfs_queue.push(explored_vertex_neighbor);
+					already_visited_map[explored_vertex_neighbor] = explored_vertex;
+				}
+			}
+		} while ((not current_solution.IsVertexInSolution(explored_vertex)) || (already_visited_map[explored_vertex] == explored_vertex));
+		// Finding the connex component the algorithm just reached by going through each of them
+		bool found_connected_component = false;
+		int connected_component_idx = -1;
+		for (int connex_component_idx = 0; connex_component_idx < connex_components.size() && not found_connected_component; connex_component_idx++)
+		{
+			vector<int>::iterator component_vertex_it = connex_components[connex_component_idx].begin();
+			for (; component_vertex_it != connex_components[connex_component_idx].end() && not found_connected_component; component_vertex_it++)
+			{
+				if ((*component_vertex_it) == explored_vertex)
+				{
+					found_connected_component = true;
+					connected_component_idx = connex_component_idx;
+				}
+			}
+		}
+		int path_vertex = already_visited_map[explored_vertex];
+		do
+		{
+			// Adding to the solution the elements of the path that form a connection between the two components
+			connex_components[connected_component_idx].push_back(path_vertex);
+			current_solution.AddVertexToTheSolution(path_vertex);
+			path_vertex = already_visited_map[path_vertex];
+		} while (already_visited_map[path_vertex] != path_vertex);
 
+		for (auto min_connex_component_vertex : connex_components[min_size_component])
+		{
+			connex_components[connected_component_idx].push_back(min_connex_component_vertex);
+		}
+
+		if (min_size_component != connex_components.size() - 1)
+		{
+			// Moving the container just for complexity's sake
+			// Otherwise all vectors are going to be shifted in the container when the erase is called
+			connex_components[min_size_component] = connex_components[connex_components.size() - 1];
+		}
+		connex_components.erase(std::prev(connex_components.end()));
+		int lol_size = 0;
+		for (auto it : connex_components)
+		{
+			lol_size += it.size();
+		}
+		//cout << "total nb of elements in the connex components : " << lol_size << "  " << connex_components.size() << endl;
+	}
 }

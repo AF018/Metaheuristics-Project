@@ -13,6 +13,6 @@ Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const Neighb
 
 Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGraph& communication_graph);
 
-void DominationReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph);
+void DominationReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph);
 
-void ConnexityReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph);
+void ConnexityReconstructionHeuristic(Solution& current_solution, const NeighborGraph& communication_graph);

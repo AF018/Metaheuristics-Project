@@ -30,7 +30,7 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 		{
 			// Computing the distance between i and j
 			double i_j_dist = pow(it_i->get_x_coord() - it_j->get_x_coord(), 2)
-							+ pow(it_i->get_y_coord() - it_j->get_y_coord(), 2);
+				+ pow(it_i->get_y_coord() - it_j->get_y_coord(), 2);
 			if (i_j_dist <= square_max_dist)
 			{
 				// Adding the edge
@@ -64,60 +64,81 @@ int NeighborGraph::get_vertex_degree(int const & vertex_idx) const
 	return edges_vector.at(vertex_idx).size();
 }
 
-bool NeighborGraph::CheckSolutionConnexity(const Solution& solution, const bool& verbose) const
+vector<int> NeighborGraph::ComputeConnexComponent(unordered_set<int>& vertices_to_process_set, const int & start_vertex_idx) const
 {
-	// Using a BFS to check if the solution set is connex
-	// u is for undiscovered, d for discovered and p for processed 
-	unordered_map<int, char> idx_to_state_map;
-	int processed_vertices_number = 0;
-	for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
-	{
-		if (solution.IsVertexInSolution(vertex_idx))
-		{
-			idx_to_state_map[vertex_idx] = 'u';
-		}
-	}
+	// Deleting from the set the start vertex so it doesn't get counted twice
+	vertices_to_process_set.erase(start_vertex_idx);
+	// Using a BFS to get the connex component
 	queue<int> bfs_queue;
 	int current_vertex_idx;
-	// Push the well vertex in the queue
-	bfs_queue.push(0);
+	vector<int> connex_component;
+		
+	bfs_queue.push(start_vertex_idx);
 	while (not bfs_queue.empty())
 	{
 		current_vertex_idx = bfs_queue.front();
 		bfs_queue.pop();
 		vector<int> const & vertex_neighbors_vector = edges_vector[current_vertex_idx];
 		vector<int>::const_iterator vertex_neighbors_it = vertex_neighbors_vector.begin();
-		unordered_map<int, char>::iterator idx_to_state_it;
 		for (; vertex_neighbors_it != vertex_neighbors_vector.end(); vertex_neighbors_it++)
 		{
 			int neighbor_idx = *vertex_neighbors_it;
-			idx_to_state_it = idx_to_state_map.find(neighbor_idx);
-			if (idx_to_state_it != idx_to_state_map.end())
+			if (vertices_to_process_set.count(neighbor_idx) == 1)
 			{
-				// Only process if the vertex is part of the solution
-				if (idx_to_state_it->second == 'u')
-				{
-					idx_to_state_it->second = 'd';
-					bfs_queue.push(*vertex_neighbors_it);
-				}
-				// Do nothing if the vertex has been discovered or processed
+				vertices_to_process_set.erase(neighbor_idx);
+				bfs_queue.push(neighbor_idx);
 			}
 		}
-		idx_to_state_map[current_vertex_idx] = 'p';
-		processed_vertices_number++;
+		connex_component.push_back(current_vertex_idx);
 	}
+	return connex_component;
+}
+
+vector<vector<int> > NeighborGraph::ComputeConnexComponents(const Solution & solution) const
+{
+	vector<vector<int>> connex_components = vector<vector<int> >();
+	// Set containing all the solution vertices not yet encountered
+	unordered_set<int> not_processed_vertices_set = solution.get_solution_set();
+
+	// Using a BFS to check if the solution set is connex
+	queue<int> bfs_queue;
+	int start_idx;
+	while (not_processed_vertices_set.size() > 0)
+	{
+		if (connex_components.size() == 0)
+		{
+			// Push the well vertex in the queue
+			start_idx = 0;
+		}
+		else
+		{
+			start_idx = *(not_processed_vertices_set.begin());
+		}
+		connex_components.push_back(ComputeConnexComponent(not_processed_vertices_set, start_idx));
+	}
+	return connex_components;
+}
+
+bool NeighborGraph::CheckSolutionConnexity(const Solution& solution, const bool& verbose) const
+{
+	unordered_set<int> solution_vertices_set = solution.get_solution_set();
+	// Computing the connex component starting at the well to see if the solution is connex
+	vector<int> connex_component = ComputeConnexComponent(solution_vertices_set, 0);
 
 	if (verbose)
 	{
-		cout << "Found a connex component of size " << processed_vertices_number << "/" << idx_to_state_map.size() << endl;
+		cout << solution.get_solution_set().count(0) << endl;
+		cout << "Found a connex component of size " << connex_component.size()-1+solution.get_solution_set().count(0)
+			 << "/" << solution.get_solution_size() << endl;
 	}
-	return (processed_vertices_number==idx_to_state_map.size());
+
+	// Check to see if the well is included in the solution or not because it is always included in the connex component
+	return (connex_component.size() == solution.get_solution_size()+1-solution.get_solution_set().count(0));
 }
 
 set<int> NeighborGraph::GetNeighbors(vector<int> const & vertex_indices_vector) const
 {
 	set<int> final_neighbors_set;
-
 	int neighbor_idx;
 	vector<int>::const_iterator vertex_indices_vector_it = vertex_indices_vector.begin();
 	for (; vertex_indices_vector_it != vertex_indices_vector.end(); vertex_indices_vector_it++)
@@ -130,15 +151,6 @@ set<int> NeighborGraph::GetNeighbors(vector<int> const & vertex_indices_vector) 
 			final_neighbors_set.insert(neighbor_idx);
 		}
 	}
-
-	// Removing the solution vertices from the neighborhood
-	//vertex_indices_vector_it = vertex_indices_vector.begin();
-	//for (; vertex_indices_vector_it != vertex_indices_vector.end(); vertex_indices_vector_it++)
-	//{
-	//	final_neighbors_set.erase(*vertex_indices_vector_it);
-	//}
-	// Sorting just to make sure, needed for the heuristic
-	//std::sort(final_neighbors_set.begin(), final_neighbors_set.end());
 	return final_neighbors_set;
 }
 
@@ -149,30 +161,5 @@ vector<int> const & NeighborGraph::GetNeighbors(int const & vertex_index) const
 
 bool NeighborGraph::CheckSolutionDomination(const Solution& solution, const bool& verbose) const
 {
-	//// Change to be in accordance with the solution structure
-	//vector<int> solution_vertex_vector;
-	//for (int vertex_idx = 0; vertex_idx < vertices_number; vertex_idx++)
-	//{
-	//	if (solution.IsVertexInSolution(vertex_idx))
-	//	{
-	//		solution_vertex_vector.push_back(vertex_idx);
-	//	}
-	//}
-	//set<int> neighbors_vector = GetNeighbors(solution_vertex_vector);
-
-	//// Merging the two sets to get the set of covered vertices
-	//// The two vectors are already sorted
-	//set<int> union_vector;
-	//std::merge(solution_vertex_vector.begin(), solution_vertex_vector.end(),
-	//	neighbors_vector.begin(), neighbors_vector.end(),
-	//	std::inserter(union_vector, union_vector.begin()));
-	//int covered_vertices_number = union_vector.size();
-
-	//if (verbose)
-	//{
-	//	cout << "covered_vertices : " << covered_vertices_number << "/" << vertices_number << endl;
-	//}
-	//return (covered_vertices_number == vertices_number);
-
 	return (solution.get_non_dominated_vertices_set().size() == 0);
 }

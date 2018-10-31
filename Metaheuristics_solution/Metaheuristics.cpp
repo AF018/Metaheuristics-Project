@@ -39,9 +39,11 @@ void RemoveVertexFromNeighborPotentialCovering(const int & vertex_idx, const int
 	}
 }
 
-void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
+void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
 {
-	int iteration_amount = 500;
+	int iteration_amount = 2000;
+	int reconstruction_threshold = 1;
+	int reconstruction_counter = 0;
 
 	srand(0);
 	//srand(time(NULL));
@@ -54,14 +56,14 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 	for (int iteration_counter = 0; iteration_counter < iteration_amount; iteration_counter++)
 	{
 		int random_vertex_idx = rand() % captation_edges_vector.size();
-		cout << "random index : " << random_vertex_idx << " current value : " << current_solution.get_solution_value() << endl;
+		//cout << "random index : " << random_vertex_idx << " current value : " << current_solution.get_solution_value() << endl;
 
 		// Removing all the vertices that dominate random_vertex_idx, which may include itself
 		vector<int> dominating_vertices_vector = current_solution.get_dominating_neighbors_vector()[random_vertex_idx];
 		for (auto dominating_vertex_it : dominating_vertices_vector)
 		{
 			current_solution.RemoveVertexFromSolution(dominating_vertex_it);
-			cout << "removing : " << dominating_vertex_it << " size : " << current_solution.get_solution_size() << endl;
+			//cout << "removing : " << dominating_vertex_it << " size : " << current_solution.get_solution_size() << endl;
 		}
 		
 		unordered_set<int> const & non_dominated_vertices_set = current_solution.get_non_dominated_vertices_set();
@@ -82,7 +84,7 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 		unordered_map<int, vector<int> > covering_potential_map = unordered_map<int, vector<int> >();
 		for (auto non_dominated_vertex : non_dominated_vertices_set)
 		{
-			cout << "non dominated : " << non_dominated_vertex << endl;
+			//cout << "non dominated : " << non_dominated_vertex << endl;
 			covering_potential_map[non_dominated_vertex] = vector<int>();
 			covering_potential_map[non_dominated_vertex].push_back(non_dominated_vertex);
 			for (auto non_dominated_vertex_neighbor : captation_edges_vector[non_dominated_vertex])
@@ -132,8 +134,6 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 			int added_vertex_idx = potential_new_solution_vector[random_idx];
 			selected_vertices.push_back(added_vertex_idx);
 
-			cout << "added_vertex_idx : " << added_vertex_idx << " potential " << highest_covering_potential << endl;
-
 			// Removing the added vertex and its neighbors in the covering potential map
 			for (auto added_vertex_neighbor : captation_edges_vector[added_vertex_idx])
 			{
@@ -172,22 +172,33 @@ void TabuSearch(Solution& current_solution, const NeighborGraph& captation_graph
 				}
 			}
 		}
-		cout << "one iteration over" << endl;
+		if (not communication_graph.CheckSolutionConnexity(current_solution))
+		{
+			reconstruction_counter++;
+			if (reconstruction_counter == reconstruction_threshold)
+			{
+				ConnexityReconstructionHeuristic(current_solution, communication_graph);
+				reconstruction_counter = 0;
+			}
+		}
+		//cout << "Check connexity : " << communication_graph.CheckSolutionConnexity(current_solution) << endl;
 		int current_value = current_solution.get_solution_value();
+		cout << "current value : " << current_value << endl;
 		if (best_solution_value > current_solution.get_solution_value())
 		{
 			best_solution = current_solution;
 			best_solution_value = current_value;
 		}
 	}
-	cout << "Final Tabu value : " << current_solution.get_solution_value() << endl;
-	cout << "Returning solution with value : " << best_solution_value << endl;
+	cout << "Final value : " << current_solution.get_solution_value() << endl;
+	communication_graph.CheckSolutionConnexity(current_solution);
+	//cout << "Returning solution with value : " << best_solution_value << endl;
 	//current_solution = best_solution;
 }
 
 void TabuSearch_2(Solution current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph)
 {
-	int iteration_amount = 500;
+	int iteration_amount = 1000;
 	int reconstruction_bound = 15;
 
 	srand(0);
@@ -260,7 +271,7 @@ void TabuSearch_2(Solution current_solution, const NeighborGraph& captation_grap
 		//}
 		if (reconstruction_counter > reconstruction_bound)
 		{
-			ReconstructionHeuristic(current_solution, captation_graph, communication_graph);
+			DominationReconstructionHeuristic(current_solution, captation_graph);
 		}
 		if (best_solution_value > best_neighboring_solution_value)
 		{

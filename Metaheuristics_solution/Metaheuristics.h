@@ -10,6 +10,6 @@ void CheckAndAddToPotentialSolutions(const int & potential_vertex_idx, unordered
 void RemoveVertexFromNeighborPotentialCovering(const int & vertex_idx, const int & vertex_to_delete_idx,
 	unordered_map<int, vector<int> >& covering_potential_map, unordered_set<int>& potential_solution_vertices_set);
 
-void TabuSearch(Solution& solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph);
+void SimulatedAnnealingSearch(Solution& solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph);
 
 void TabuSearch_2(Solution solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph);

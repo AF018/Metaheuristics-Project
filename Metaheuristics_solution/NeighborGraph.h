@@ -25,6 +25,8 @@ public:
 	vector<vector<int> > const & get_edges_vector() const;
 	int get_vertices_number() const;
 	int get_vertex_degree(int const & vertex_idx) const;
+	vector<int> ComputeConnexComponent(unordered_set<int>& vertices_to_process_set, const int& start_vertex_idx) const;
+	vector<vector<int> > ComputeConnexComponents(const Solution& solution) const;
 	// Check to be used on the communication graph
 	bool CheckSolutionConnexity(const Solution& solution, const bool& verbose=false) const;
 	// Returns the set of neighbors of a given vertex indices set
