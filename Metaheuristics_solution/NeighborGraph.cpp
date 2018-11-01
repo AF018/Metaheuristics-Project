@@ -40,7 +40,6 @@ NeighborGraph::NeighborGraph(const TargetNet& target_net, const double& max_dist
 			}
 		}
 	}
-	cout << edges_vector.size() << endl;
 	cout << "vertex number : " << vertices_number << endl;
 	cout << "edge number : " << edge_number << endl;
 }

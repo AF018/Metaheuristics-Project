@@ -4,7 +4,7 @@
 
 int main()
 {
-	string parameter_file_path = "C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/parameters.dat";
+	string parameter_file_path = "C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/run_parameters.dat";
 	string file_path;
 	string heuristic_result_path;
 	string SA_result_path;
@@ -27,29 +27,29 @@ int main()
 	start = std::clock();
 	TargetNet target_net(file_path);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Duration : " << duration << " seconds" << endl;;
+	cout << "Reading duration : " << duration << " seconds" << endl;;
 	cout << endl;
 
 	cout << "Constructing captation graph" << endl;
 	start = std::clock();
 	NeighborGraph captation_graph(target_net, captation_radius);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Duration : " << duration << " seconds" << endl;
+	cout << "Captation graph construction duration : " << duration << " seconds" << endl;
 	cout << endl;
 	
 	cout << "Constructing communication graph" << endl;
 	start = std::clock();
 	NeighborGraph communication_graph(target_net, communication_radius);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Duration : " << duration << " seconds" << endl;
+	cout << "Communication graph construction duration : " << duration << " seconds" << endl;
 	cout << endl;
 	
 	cout << "Runnning the naive random heuristic" << endl;
 	start = std::clock();
 	Solution naive_solution = NaiveRandomHeuristic(captation_graph, communication_graph);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Duration : " << duration << " seconds" << endl;
-	cout << "Score : " << naive_solution.get_solution_value() << " used targets \n";
+	cout << "Naive random heuristic duration : " << duration << " seconds" << endl;
+	cout << "Naive random heuristic score : " << naive_solution.get_solution_value() << " used targets" << endl;
 	cout << endl;
 
 	cout << "Runnning the checks on the naive solution" << endl;
@@ -57,7 +57,7 @@ int main()
 	captation_graph.CheckSolutionDomination(naive_solution);
 	communication_graph.CheckSolutionConnexity(naive_solution);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Duration : " << duration << " seconds" << endl;
+	cout << "Check duration : " << duration << " seconds" << endl;
 	cout << endl;
 
 	naive_solution.Write(heuristic_result_path);
@@ -70,10 +70,10 @@ int main()
 			init_temperature, final_temperature, decreasing_coef, reconstruction_threshold);
 	}
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Duration : " << duration << " seconds" << endl;
+	cout << "Local search duration : " << duration << " seconds" << endl;
+	cout << "Local search score : " << naive_solution.get_solution_value() << " used targets" << endl;
 	cout << endl;
 
-	cout << "Local search score : " << naive_solution.get_solution_value() << " used targets" << endl;
 	naive_solution.Write(SA_result_path);
 
 	return 0;

@@ -18,11 +18,14 @@ void read_parameter_file(string const & parameter_path, string& file_path, strin
 	// Path to the result file for the simulated annealing
 	SA_result_path = line;
 	std::getline(file, line);
+	int start_pos = 0;
+	int end_pos = line.find(' ', start_pos);
 	// Radius for the captation graph
-	captation_radius = std::stod(line);
-	std::getline(file, line);
+	captation_radius = std::stod(line.substr(start_pos, end_pos - start_pos));
+	start_pos = end_pos + 1;
+	end_pos = line.find(' ', start_pos);
 	// Radius for the communication graph
-	communication_radius = std::stod(line);
+	communication_radius = std::stod(line.substr(start_pos, end_pos - start_pos));
 	std::getline(file, line);
 	// Number of iterations with constraint tresspassing before calling the connexity reconstruction heuristic
 	reconstruction_threshold = std::stoi(line);
