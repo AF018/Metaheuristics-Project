@@ -119,18 +119,11 @@ vector<vector<int> > NeighborGraph::ComputeConnexComponents(const Solution & sol
 	return connex_components;
 }
 
-bool NeighborGraph::CheckSolutionConnexity(const Solution& solution, const bool& verbose) const
+bool NeighborGraph::CheckSolutionConnexity(const Solution& solution) const
 {
 	unordered_set<int> solution_vertices_set = solution.get_solution_set();
 	// Computing the connex component starting at the well to see if the solution is connex
 	vector<int> connex_component = ComputeConnexComponent(solution_vertices_set, 0);
-
-	if (verbose)
-	{
-		cout << solution.get_solution_set().count(0) << endl;
-		cout << "Found a connex component of size " << connex_component.size()-1+solution.get_solution_set().count(0)
-			 << "/" << solution.get_solution_size() << endl;
-	}
 
 	// Check to see if the well is included in the solution or not because it is always included in the connex component
 	return (connex_component.size() == solution.get_solution_size()+1-solution.get_solution_set().count(0));
@@ -159,7 +152,7 @@ vector<int> const & NeighborGraph::GetNeighbors(int const & vertex_index) const
 	return edges_vector.at(vertex_index);
 }
 
-bool NeighborGraph::CheckSolutionDomination(const Solution& solution, const bool& verbose) const
+bool NeighborGraph::CheckSolutionDomination(const Solution& solution) const
 {
 	return (solution.get_non_dominated_vertices_set().size() == 0);
 }

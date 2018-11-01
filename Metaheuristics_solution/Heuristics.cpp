@@ -37,7 +37,6 @@ Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const Neighb
 	int random_choice = rand() % highest_potential_vertex_vector.size();
 	int random_choice_vertex = highest_potential_vertex_vector[random_choice];
 	solution_vertices_vector.push_back(random_choice_vertex);
-	cout << random_choice_vertex << endl;
 	vector<int> const & neighbors_idx_vector = captation_edges_vector.at(random_choice_vertex);
 	covered_vertices_set.insert(random_choice_vertex);
 	for (vector<int>::const_iterator neighbors_idx_vector_it = neighbors_idx_vector.begin(); neighbors_idx_vector_it != neighbors_idx_vector.end(); neighbors_idx_vector_it++)
@@ -49,7 +48,6 @@ Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const Neighb
 		}
 		covering_potential_vector[*neighbors_idx_vector_it].erase(random_choice_vertex);
 	}
-	cout << "fin first" << endl;
 	// Iterations after the first one
 	while (covered_vertices_set.size() < communication_graph.get_vertices_number())
 	{
@@ -95,10 +93,8 @@ Solution NaiveRandomHeuristic(const NeighborGraph& captation_graph, const Neighb
 	vector<int>::iterator solution_vertices_vector_it = solution_vertices_vector.begin();
 	for (; solution_vertices_vector_it != solution_vertices_vector.end(); solution_vertices_vector_it++)
 	{
-		cout << *solution_vertices_vector_it << " | ";
 		heuristic_solution.AddVertexToTheSolution(*solution_vertices_vector_it);
 	}
-	cout << endl;
 
 	return heuristic_solution;
 }
@@ -198,7 +194,7 @@ void DominationReconstructionHeuristic(Solution& current_solution, const Neighbo
 	}
 }
 
-void ConnexityReconstructionHeuristic(Solution & current_solution, const NeighborGraph & communication_graph)
+void ConnexityReconstructionHeuristic(Solution & current_solution, const NeighborGraph & communication_graph, vector<int> & selected_vertices_vector)
 {
 	vector<vector<int> > connex_components = communication_graph.ComputeConnexComponents(current_solution);
 	while (connex_components.size() > 1)
@@ -262,13 +258,14 @@ void ConnexityReconstructionHeuristic(Solution & current_solution, const Neighbo
 			}
 		}
 		int path_vertex = already_visited_map[explored_vertex];
-		do
+		while (already_visited_map[path_vertex] != path_vertex)
 		{
 			// Adding to the solution the elements of the path that form a connection between the two components
 			connex_components[connected_component_idx].push_back(path_vertex);
 			current_solution.AddVertexToTheSolution(path_vertex);
+			selected_vertices_vector.push_back(path_vertex);
 			path_vertex = already_visited_map[path_vertex];
-		} while (already_visited_map[path_vertex] != path_vertex);
+		}
 
 		for (auto min_connex_component_vertex : connex_components[min_size_component])
 		{

@@ -15,4 +15,4 @@ Solution NaiveHeuristic(const NeighborGraph& captation_graph, const NeighborGrap
 
 void DominationReconstructionHeuristic(Solution& current_solution, const NeighborGraph& captation_graph);
 
-void ConnexityReconstructionHeuristic(Solution& current_solution, const NeighborGraph& communication_graph);
+void ConnexityReconstructionHeuristic(Solution& current_solution, const NeighborGraph& communication_graph, vector<int>& selected_vertices_vector);

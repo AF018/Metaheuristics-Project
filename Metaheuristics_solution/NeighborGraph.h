@@ -28,12 +28,12 @@ public:
 	vector<int> ComputeConnexComponent(unordered_set<int>& vertices_to_process_set, const int& start_vertex_idx) const;
 	vector<vector<int> > ComputeConnexComponents(const Solution& solution) const;
 	// Check to be used on the communication graph
-	bool CheckSolutionConnexity(const Solution& solution, const bool& verbose=false) const;
+	bool CheckSolutionConnexity(const Solution& solution) const;
 	// Returns the set of neighbors of a given vertex indices set
 	set<int> GetNeighbors(vector<int> const & vertex_indices_vector) const;
 	// Returns the set of neighbors of a given vertex index
 	vector<int> const & GetNeighbors(int const & vertex_index) const;
 	// Check to be used on the captation graph
-	bool CheckSolutionDomination(const Solution& solution, const bool& verbose=false) const;
+	bool CheckSolutionDomination(const Solution& solution) const;
 };
 
