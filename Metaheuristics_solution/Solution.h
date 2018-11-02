@@ -42,5 +42,6 @@ public:
 	bool SwapVertices(const int& leaving_idx, const int& incoming_idx);
 	// Method writing in file_name the vertices in the solution, separated by a space
 	void Write(const string& file_name);
+	void AddSolutionFile(const string& file_name);
 };
 

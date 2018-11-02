@@ -133,9 +133,29 @@ void Solution::Write(const string& file_name)
 {
 	std::ofstream file(file_name.c_str());
 
-	for (auto it = solution_set.begin(); it != solution_set.end(); ++it) {
-		file << *it << " ";
+	auto it = solution_set.begin();
+	while (it != solution_set.end())
+	{
+		file << (*it) << endl;
+		it++;
 	}
-	file << std::endl;
 
+}
+
+void Solution::AddSolutionFile(const string& file_name) {
+	std::ifstream file(file_name.c_str());
+	string line;
+	int vertex_idx;
+	if (not file.is_open())
+	{
+		cout << "The file " << file_name << " is not found, please check it exists" << endl;
+	}
+	while (std::getline(file, line))
+	{
+		// Looking for the vertex index
+		vertex_idx = std::stoi(line);
+		// Adding the vertex to the current solution
+		this->AddVertexToTheSolution(vertex_idx);
+	}
+	file.close();
 }

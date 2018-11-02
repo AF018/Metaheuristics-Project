@@ -25,9 +25,9 @@ with open(args.input, 'r') as read_file :
 
 ## read the solution file
 with open(args.solution, 'r') as read_solution :
-    #for line in read_solution:
-    #    solution.append(int(line))
-    solution = [int(i) for i in read_solution.read().split(" ")[:-1]]    
+    for line in read_solution:
+        solution.append(int(line))
+    #solution = [int(i) for i in read_solution.read().split(" ")[:-1]]    
             
 
 coords = np.array(coords)
