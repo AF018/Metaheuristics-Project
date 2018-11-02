@@ -5,9 +5,6 @@ radius_values_list = radius_file.read().splitlines()
 instance_file = open("instance_list.csv", "r")
 instance_names_list = instance_file.read().splitlines()
 
-print(radius_values_list)
-print(instance_names_list)
-
 for radius_values in radius_values_list:
     for instance_name in instance_names_list:
 

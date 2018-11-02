@@ -17,6 +17,7 @@ void read_parameter_file(string const & parameter_path, string& file_path, strin
 	std::getline(file, line);
 	// Path to the result file for the simulated annealing
 	SA_result_path = line;
+
 	std::getline(file, line);
 	int start_pos = 0;
 	int end_pos = line.find(' ', start_pos);
@@ -26,21 +27,27 @@ void read_parameter_file(string const & parameter_path, string& file_path, strin
 	end_pos = line.find(' ', start_pos);
 	// Radius for the communication graph
 	communication_radius = std::stod(line.substr(start_pos, end_pos - start_pos));
+
 	std::getline(file, line);
 	// Number of iterations with constraint tresspassing before calling the connexity reconstruction heuristic
 	reconstruction_threshold = std::stoi(line);
 	std::getline(file, line);
 	// Number of times the simulated annealing process is called
 	SA_iteration_number = std::stoi(line);
+
 	std::getline(file, line);
+	start_pos = 0;
+	end_pos = line.find(' ', start_pos);
 	// Temperature at which the simulated annealing starts
-	init_temperature = std::stod(line);
-	std::getline(file, line);
+	init_temperature = std::stod(line.substr(start_pos, end_pos - start_pos));
+	start_pos = end_pos + 1;
+	end_pos = line.find(' ', start_pos);
 	// Decreasing coeeficient for the simulated annealing
-	decreasing_coef = std::stod(line);
-	std::getline(file, line);
+	decreasing_coef = std::stod(line.substr(start_pos, end_pos - start_pos));
+	start_pos = end_pos + 1;
+	end_pos = line.find(' ', start_pos);
 	// Temperature at which the simulated annealing stops
-	final_temperature = std::stod(line);
+	final_temperature = std::stod(line.substr(start_pos, end_pos - start_pos));
 }
 
 void CheckAndAddToPotentialSolutions(const int & potential_vertex_idx, unordered_set<int>& potential_solution_vertices_set,
@@ -73,6 +80,7 @@ void RemoveVertexFromNeighborPotentialCovering(const int & vertex_idx, const int
 			covering_potential_it->second.end(),
 			vertex_to_delete_idx);
 		covering_potential_it->second.erase(vertex_to_delete_it);
+		// If the vertex has no covering potential, there is no need to keep it as a potential solution vertex
 		if (covering_potential_it->second.size() == 0)
 		{
 			covering_potential_map.erase(covering_potential_it);
@@ -84,16 +92,15 @@ void RemoveVertexFromNeighborPotentialCovering(const int & vertex_idx, const int
 void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& captation_graph, const NeighborGraph& communication_graph,
 	const double& init_temperature, const double& final_temperature, const double& decreasing_coef, const int& reconstruction_threshold)
 {
+	// Parameters and values concerning the simulated annealing and the connexity reconstructions
 	double temperature = init_temperature;
+	double acceptance_probability = -1;
 	int reconstruction_counter = 0;
-
-	srand(0);
-	//srand(time(NULL));
-
-	vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
 	int current_value = current_solution.get_solution_value();;
 	int previous_value = -1;
-	double acceptance_probability = -1;
+
+	// Container indicating the neighbors in the communication graph
+	vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
 	// Variables to keep in memory the best solution encountered
 	Solution best_solution = current_solution;
 	int best_solution_value = current_value;
@@ -101,8 +108,9 @@ void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& c
 	while (temperature > final_temperature)
 	{
 		previous_value = current_value;
-		int random_vertex_idx = rand() % captation_edges_vector.size();
 
+		// Choosing a random vertex among the graph
+		int random_vertex_idx = rand() % captation_edges_vector.size();
 		// Removing all the vertices that dominate random_vertex_idx, which may include itself
 		vector<int> dominating_vertices_vector = current_solution.get_dominating_neighbors_vector()[random_vertex_idx];
 		// Vector keeping the indices of the vertices that have been removed
@@ -115,8 +123,9 @@ void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& c
 		
 		unordered_set<int> const & non_dominated_vertices_set = current_solution.get_non_dominated_vertices_set();
 		unordered_set<int> const & solution_set = current_solution.get_solution_set();
-		// Container including the vertices neighbors of non dominated vertex(ices) in the communication graph
-		// and which also have neighbor(s) in the communication graph included in the current solution
+		// Container including the vertex neighbors of non dominated vertex(ices) in the communication graph
+		// and which also have neighbor(s) (in the communication graph) included in the current solution
+		// The new vertices of the solution are going to get chosen from this set
 		unordered_set<int> potential_solution_vertices_set = unordered_set<int>();
 		for (auto non_dominated_vertex : non_dominated_vertices_set)
 		{
@@ -126,7 +135,8 @@ void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& c
 			}
 			CheckAndAddToPotentialSolutions(non_dominated_vertex, potential_solution_vertices_set, communication_graph, solution_set);
 		}
-		// Computing how many vertices each non dominated vertex can dominate
+		// Computing how many vertices each non potential solution can dominate
+		// The covering potential corresponds to the number of vertices each vertex can dominate
 		unordered_map<int, vector<int> > covering_potential_map = unordered_map<int, vector<int> >();
 		for (auto non_dominated_vertex : non_dominated_vertices_set)
 		{
@@ -156,6 +166,7 @@ void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& c
 		vector<int> potential_new_solution_vector;
 		// Vector including all the selected vertices for the solution
 		vector<int> selected_vertices_vector;
+		// Adding vertices as long as there are non dominated vertices with this solution
 		while (non_dominated_vertices_set.size() > 0)
 		{
 			highest_covering_potential = 0;
@@ -217,20 +228,28 @@ void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& c
 				}
 			}
 		}
+		// Checking the connexity of the new solution
 		if (not communication_graph.CheckSolutionConnexity(current_solution))
 		{
 			reconstruction_counter++;
 			if (reconstruction_counter == reconstruction_threshold)
 			{
+				// If it has been "reconstruction_threshold" iterations since the last time the solution was connex, call the connexity reconstruction
 				ConnexityReconstructionHeuristic(current_solution, communication_graph, selected_vertices_vector);
 				reconstruction_counter = 0;
 			}
 		}
+		else
+		{
+			reconstruction_counter = 0;
+		}
 		current_value = current_solution.get_solution_value();
 		//cout << "current value : " << current_value << " old value  " << previous_value << endl;
+		// Checking if the new solution has a lower value, if so the solution is kept
+		// Otherwise, with respect to a probability, goes back to the previous solution
+		acceptance_probability = exp((previous_value - current_value) / temperature);
 		if ((current_value > previous_value) && ((rand() / double(RAND_MAX)) > acceptance_probability))
 		{
-			acceptance_probability = exp((previous_value - current_value) / temperature);
 			// Going back to the previous solution
 			for (auto added_vertex : selected_vertices_vector)
 			{
@@ -262,9 +281,6 @@ void LocalSearch(Solution current_solution, const NeighborGraph& captation_graph
 {
 	int iteration_amount = 1000;
 	int reconstruction_bound = 15;
-
-	srand(0);
-	//srand(time(NULL));
 
 	vector<vector<int> > const & captation_edges_vector = captation_graph.get_edges_vector();
 	int best_neighboring_solution_idx = -1;

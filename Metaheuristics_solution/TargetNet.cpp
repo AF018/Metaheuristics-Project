@@ -38,8 +38,6 @@ TargetNet::TargetNet(const string& file_name)
 		start_pos = end_pos + 1;
 		end_pos = line.find(' ', start_pos);
 		target_y_coord = std::stod(line.substr(start_pos, end_pos - start_pos));
-
-		//cout << target_idx << "  " << target_x_coord << "   " << target_y_coord << endl;
 		
 		// Adding the new target at the back of the vector
 		target_vect.push_back(Target(target_idx, target_x_coord, target_y_coord));

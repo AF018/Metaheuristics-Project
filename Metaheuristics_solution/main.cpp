@@ -4,6 +4,9 @@
 
 int main()
 {
+	//srand(0);
+	srand(time(NULL));
+
 	string parameter_file_path = "C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/run_parameters.dat";
 	string file_path;
 	string heuristic_result_path;
