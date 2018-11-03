@@ -1,7 +1,8 @@
 
 #include "Metaheuristics.h"
 
-void read_parameter_file(string const & parameter_path, string& file_path, string& heuristic_result_path, string& SA_result_path,
+void read_parameter_file(string const & parameter_path, string& grid_path, string& solution_path, 
+	string& heuristic_result_path, string& SA_result_path,
 	double& captation_radius, double& communication_radius,
 	int& reconstruction_threshold, int& SA_iteration_number,
 	double& init_temperature, double& decreasing_coef, double& final_temperature)
@@ -10,7 +11,10 @@ void read_parameter_file(string const & parameter_path, string& file_path, strin
 	string line;
 	std::getline(file, line);
 	// Path to the target network file
-	file_path = line;
+	grid_path = line;
+	std::getline(file, line);
+	// Path to the solution file (might not exist)
+	solution_path = line;
 	std::getline(file, line);
 	// Path to the result file for the heuristic
 	heuristic_result_path = line;
@@ -359,7 +363,7 @@ void LocalSearch(Solution current_solution, const NeighborGraph& captation_graph
 		//cout << "Chosen neighbor : " <<  best_neighboring_solution_idx << " value : " << current_solution.get_solution_value() << endl;
 		//cout << endl;
 	}
-	cout << "Final Tabu value : " << current_solution.get_solution_value() << endl;
+	cout << "Final local search value : " << current_solution.get_solution_value() << endl;
 	cout << "Returning solution with value : " << best_solution_value << endl;
 	current_solution = best_solution;
 }

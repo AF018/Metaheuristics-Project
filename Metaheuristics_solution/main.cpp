@@ -8,7 +8,8 @@ int main()
 	srand(time(NULL));
 
 	string parameter_file_path = "C:/Users/Antoine/Documents/Ecole des Ponts/Cours 3A/Metaheuristiques/Metaheuristics-project/run_parameters.dat";
-	string file_path;
+	string grid_path;
+	string solution_path;
 	string heuristic_result_path;
 	string SA_result_path;
 	double captation_radius;
@@ -18,7 +19,8 @@ int main()
 	double init_temperature;
 	double decreasing_coef;
 	double final_temperature;
-	read_parameter_file(parameter_file_path, file_path, heuristic_result_path, SA_result_path,
+	read_parameter_file(parameter_file_path, grid_path, solution_path,
+		heuristic_result_path, SA_result_path,
 		captation_radius, communication_radius,
 		reconstruction_threshold, simulated_annealing_iteration_number,
 		init_temperature, decreasing_coef, final_temperature);
@@ -28,7 +30,7 @@ int main()
 
 	cout << "Reading file" << endl;
 	start = std::clock();
-	TargetNet target_net(file_path);
+	TargetNet target_net(grid_path);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	cout << "Reading duration : " << duration << " seconds" << endl;;
 	cout << endl;
@@ -47,37 +49,47 @@ int main()
 	cout << "Communication graph construction duration : " << duration << " seconds" << endl;
 	cout << endl;
 	
-	cout << "Runnning the naive random heuristic" << endl;
-	start = std::clock();
-	Solution naive_solution = NaiveRandomHeuristic(captation_graph, communication_graph);
-	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
-	cout << "Naive random heuristic duration : " << duration << " seconds" << endl;
-	cout << "Naive random heuristic score : " << naive_solution.get_solution_value() << " used targets" << endl;
-	cout << endl;
+	Solution current_solution;
+	if (solution_path == "0")
+	{
+		cout << "Runnning the naive random heuristic" << endl;
+		start = std::clock();
+		current_solution = NaiveRandomHeuristic(captation_graph, communication_graph);
+		duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
+		cout << "Naive random heuristic duration : " << duration << " seconds" << endl;
+		cout << "Naive random heuristic score : " << current_solution.get_solution_value() << " used targets" << endl;
+		current_solution.Write(heuristic_result_path);
+		cout << endl;
+	}
+	else
+	{
+		cout << "Recovering the solution at " << solution_path << endl;
+		current_solution = Solution(captation_graph.get_vertices_number(), &captation_graph, &communication_graph);
+		current_solution.AddSolutionFile(solution_path);
+		cout << endl;
+	}
 
 	cout << "Runnning the checks on the naive solution" << endl;
 	start = std::clock();
-	captation_graph.CheckSolutionDomination(naive_solution);
-	communication_graph.CheckSolutionConnexity(naive_solution);
+	captation_graph.CheckSolutionDomination(current_solution);
+	communication_graph.CheckSolutionConnexity(current_solution);
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	cout << "Check duration : " << duration << " seconds" << endl;
 	cout << endl;
-
-	naive_solution.Write(heuristic_result_path);
 
 	cout << "Runnning the simulated annealing : " << simulated_annealing_iteration_number << " iteration(s)" << endl;
 	start = std::clock();
 	for (int iteration_number = 0; iteration_number < simulated_annealing_iteration_number; iteration_number++)
 	{
-		SimulatedAnnealingSearch(naive_solution, captation_graph, communication_graph,
+		SimulatedAnnealingSearch(current_solution, captation_graph, communication_graph,
 			init_temperature, final_temperature, decreasing_coef, reconstruction_threshold);
 	}
 	duration = (std::clock() - start) / (double)CLOCKS_PER_SEC;
 	cout << "Local search duration : " << duration << " seconds" << endl;
-	cout << "Local search score : " << naive_solution.get_solution_value() << " used targets" << endl;
+	cout << "Local search score : " << current_solution.get_solution_value() << " used targets" << endl;
 	cout << endl;
 
-	naive_solution.Write(SA_result_path);
+	current_solution.Write(SA_result_path);
 
 	return 0;
 }

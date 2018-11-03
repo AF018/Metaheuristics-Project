@@ -5,7 +5,8 @@
 const int UPPER_BOUND_VALUE = 1e9;
 
 // Reads a parameter file and modifies the arguments with these values
-void read_parameter_file(string const & parameter_path, string& file_path, string& heuristic_result_path, string& SA_result_path,
+void read_parameter_file(string const & parameter_path, string& grid_path, string& solution_path,
+	string& heuristic_result_path, string& SA_result_path,
 	double& captation_radius, double& communication_radius,
 	int& reconstruction_threshold, int& SA_iteration_number,
 	double& init_temperature, double& decreasing_coef, double& final_temperature);
