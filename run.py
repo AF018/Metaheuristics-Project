@@ -14,4 +14,4 @@ for radius_values in radius_values_list:
                 for template_line in template_parameters_file:
                     parameters_file.write(template_line.replace("INSTANCE_NAME", instance_name).replace("CAPT_RADIUS", capt_radius).replace("COMM_RADIUS", comm_radius))
         os.system("echo " + instance_name + " " + radius_values)
-        os.system("Metaheuristics_solution\\Debug\\Metaheuristics_solution.exe")
+        os.system("Metaheuristics_solution\\Release\\Metaheuristics_solution.exe")

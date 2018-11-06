@@ -66,6 +66,7 @@ int main()
 		cout << "Recovering the solution at " << solution_path << endl;
 		current_solution = Solution(captation_graph.get_vertices_number(), &captation_graph, &communication_graph);
 		current_solution.AddSolutionFile(solution_path);
+		cout << "Value : " << current_solution.get_solution_value() << endl;
 		cout << endl;
 	}
 

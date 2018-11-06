@@ -275,6 +275,14 @@ void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& c
 		// Computation of the next iteration temperature
 		temperature = decreasing_coef * temperature;
 	}
+
+	// Quick fix to ensure that the returned solution is connex
+	if (not communication_graph.CheckSolutionConnexity(best_solution))
+	{
+		vector<int> dummy_variable;
+		ConnexityReconstructionHeuristic(best_solution, communication_graph, dummy_variable);
+	}
+
 	//communication_graph.CheckSolutionConnexity(current_solution);
 	cout << "Final value : " << current_value << endl;
 	cout << "Returning solution with value : " << best_solution_value << endl;
