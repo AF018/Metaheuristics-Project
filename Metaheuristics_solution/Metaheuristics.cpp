@@ -267,7 +267,7 @@ void SimulatedAnnealingSearch(Solution& current_solution, const NeighborGraph& c
 			//cout << "                    Went back to the old value : " << current_solution.get_solution_value() << endl;
 		}
 
-		if (best_solution_value > current_solution.get_solution_value())
+		if (best_solution_value > current_value)
 		{
 			best_solution = current_solution;
 			best_solution_value = current_value;

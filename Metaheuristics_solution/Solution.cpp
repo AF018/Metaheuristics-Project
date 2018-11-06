@@ -47,14 +47,17 @@ void Solution::get_solution_value(int & solution_value, bool & domination_condit
 {
 	domination_condition = (non_dominated_vertices_set.size() == 0);
 	connexity_condition = solution_communication_graph->CheckSolutionConnexity(*this);
-	solution_value = solution_set.size() + 1000 * !domination_condition + 10000 * !connexity_condition;
+	int connex_components_number = solution_captation_graph->ComputeConnexComponents(*this).size();
+	//solution_value = solution_set.size() + 1000 * !domination_condition + 10000 * !connexity_condition;
+	solution_value = solution_set.size() + 5 * (connex_components_number-1);
 }
 
 int Solution::get_solution_value() const
 {
-	bool domination_condition = (non_dominated_vertices_set.size() == 0);
-	bool connexity_condition = solution_communication_graph->CheckSolutionConnexity(*this);
-	return solution_set.size() + 1000 * !domination_condition + 10000 * !connexity_condition;
+	int connex_components_number = solution_captation_graph->ComputeConnexComponents(*this).size();
+	//solution_value = solution_set.size() + 1000 * !domination_condition + 10000 * !connexity_condition;
+	int solution_value = solution_set.size() + 5 * (connex_components_number - 1);
+	return solution_value;
 }
 
 int Solution::get_solution_size() const

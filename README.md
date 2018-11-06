@@ -1,5 +1,6 @@
 # Metaheuristics-Project
-Heuristics and metaheuristics implementation for the corresponding course at the MPRO
+Heuristics and metaheuristics implementation for the corresponding course at the MPRO.
+The code mainly consists of a heuristic and a simulated annealing algorithm.
 
 ## Grid and solution format
 
@@ -46,7 +47,7 @@ INITIAL_TEMPERATURE DECREASING_COEFFICIENT FINAL_TEMPERATURE
 In case you don't want to import an existing solution, you can create one with the heuristic implemented in the code. To do that, just replace the PATH_TO_SOLUTION_FILE line by 0.
 If you want to import a solution, the third line is not important since it specifies the path to the heuristic solution, which is only computed when there is no imported solution.
 
-To run the heuristic and the simulated annealing, you would use for instance (given teh specified folders exist, as well as the grid file and the solution file) :
+To run the heuristic and the simulated annealing, you would use for instance (given the specified folders exist, as well as the grid file and the solution file) :
 
 ```
 Instances/captANOR1500_15_100.dat
