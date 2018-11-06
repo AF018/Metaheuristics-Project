@@ -49,7 +49,7 @@ void Solution::get_solution_value(int & solution_value, bool & domination_condit
 	connexity_condition = solution_communication_graph->CheckSolutionConnexity(*this);
 	int connex_components_number = solution_communication_graph->ComputeConnexComponents(*this).size();
 	//solution_value = solution_set.size() + 1000 * !domination_condition + 10000 * !connexity_condition;
-	solution_value = solution_set.size() +5 * (connex_components_number - 1);
+	solution_value = solution_set.size() + 5 * (connex_components_number - 1);
 }
 
 int Solution::get_solution_value() const

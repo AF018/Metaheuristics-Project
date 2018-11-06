@@ -64,15 +64,3 @@ You can display the solution by calling the python script `draw_graph.py` with t
 ```
 python draw_graph.py --input PATH_TO_GRID --rcapt CAPTATION_RADIUS --rcom COMMUNICATION_RADIUS --solution PATH_TO_SOLUTION
 ```
-
-Continue commenting the work
-
-The containers in the simulated annealing are really badly chosen, change some of them if there's time
-
-Add a descent at the end : selecct the vertices in random order and remove those which are not necessary (useful)
-
-Maybe change the best solution if the current one has the same score as the best
-
-Some methods aren't used, maybe delete them
-
-Some vectors seem to be copied in the heuristic, that is not cool for complexity (but not really important also)
